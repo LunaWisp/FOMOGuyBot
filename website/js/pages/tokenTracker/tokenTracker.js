@@ -29,17 +29,31 @@ export class TokenTrackerPage extends BasePage {
     }
     
     /**
-     * Clean up when navigating away from the page
+     * Clean up resources when leaving the page
      */
     cleanup() {
-        // Clean up core resources
-        if (this.core) {
-            this.core.cleanup();
-        }
+        debugTool.logInfo('Cleaning up TokenTrackerPage');
+        
+        // Clean up core functionality
+        this.core.cleanup();
         
         // Call base cleanup
         super.cleanup();
-        
-        debugTool.logInfo('TokenTrackerPage cleaned up');
+    }
+}
+
+/**
+ * Load the token tracker page
+ * @returns {TokenTrackerPage} The token tracker page instance
+ */
+export function loadTokenTracker() {
+    console.log('Loading token tracker page');
+    try {
+        const tokenTrackerPage = new TokenTrackerPage();
+        tokenTrackerPage.initialize();
+        return tokenTrackerPage;
+    } catch (error) {
+        console.error('Error loading token tracker page:', error);
+        throw error;
     }
 } 

@@ -2,17 +2,7 @@
  * Main Application Class
  * Controls application structure and navigation
  */
-
-// Try to import debugTool, fallback to console if not available
-let debugTool = console;
-
-// Simple debug tool initialization to handle import errors
-debugTool.logInfo = debugTool.logInfo || function(msg) { console.log('[INFO]', msg); };
-debugTool.logWarning = debugTool.logWarning || function(msg) { console.warn('[WARNING]', msg); };
-debugTool.logError = debugTool.logError || function(msg) { console.error('[ERROR]', msg); };
-
-// Initialize debugging
-debugTool.logInfo('Loading application...');
+import { debugTool } from './utils/debug/index.js';
 
 export class App {
     constructor() {

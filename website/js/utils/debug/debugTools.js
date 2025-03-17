@@ -37,7 +37,12 @@
           // Node.js environment
           fs.appendFileSync(logFilePath, logEntry, 'utf8');
         } else if (typeof window !== 'undefined') {
-          // Browser with fetch API
+          // Browser environment - just log to console, skip the API call
+          // Remote logging disabled as http-server doesn't support POST
+          originalConsole.log('Debug log:', logEntry);
+          
+          // Don't try to use fetch with http-server as it causes 405 errors
+          /*
           try {
             fetch('/api/log', {
               method: 'POST',
@@ -57,6 +62,7 @@
             // Silently fail if fetch is not available
             originalConsole.log('Would write to file:', logEntry);
           }
+          */
         } else {
           // Browser fallback: just log to console
           originalConsole.log('Would write to file:', logEntry);

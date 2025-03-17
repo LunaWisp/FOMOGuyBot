@@ -158,5 +158,21 @@ export class DashboardPage extends BasePage {
         
         debugTool.logInfo("Dashboard cleaned up");
     }
-} 
+}
+
+/**
+ * Load the dashboard page
+ * @returns {DashboardPage} The dashboard page instance
+ */
+export function loadDashboard() {
+    console.log('Loading dashboard page');
+    try {
+        const dashboardPage = new DashboardPage();
+        dashboardPage.initialize();
+        dashboardPage.loadData();
+        return dashboardPage;
+    } catch (error) {
+        console.error('Error loading dashboard page:', error);
+        throw error;
+    }
 } 

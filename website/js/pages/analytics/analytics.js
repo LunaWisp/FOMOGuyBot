@@ -29,9 +29,8 @@ export class AnalyticsPage extends BasePage {
             
             if (analyticsData) {
                 this.dataCache = analyticsData;
+                this.render();
             }
-            
-            this.render();
         } catch (error) {
             debugTool.logError('Failed to load analytics data:', error);
         }
@@ -41,12 +40,12 @@ export class AnalyticsPage extends BasePage {
      * Set up event listeners for the analytics page
      */
     setupEventListeners() {
-        // Time range selector
-        const timeRangeButtons = this.container.querySelectorAll('.time-range-button');
+        // Time frame selectors
+        const timeframeButtons = this.container.querySelectorAll('.timeframe-selector button');
         
-        timeRangeButtons.forEach(button => {
+        timeframeButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const timeframe = button.getAttribute('data-timeframe');
+                const timeframe = button.dataset.timeframe;
                 this.changeTimeframe(timeframe);
             });
         });
@@ -55,121 +54,113 @@ export class AnalyticsPage extends BasePage {
     }
     
     /**
-     * Change the timeframe for analytics data
+     * Change the timeframe and reload data
+     * @param {string} timeframe - The new timeframe to display
      */
     async changeTimeframe(timeframe) {
-        if (timeframe === this.timeframe) return;
-        
-        debugTool.logInfo(`Changing analytics timeframe to ${timeframe}`);
-        
-        // Update UI state
-        const buttons = this.container.querySelectorAll('.time-range-button');
-        buttons.forEach(btn => {
-            if (btn.getAttribute('data-timeframe') === timeframe) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-        
-        // Update timeframe and reload data
-        this.timeframe = timeframe;
-        await this.loadData();
-    }
-    
-    /**
-     * Render analytics charts and data
-     */
-    render() {
-        if (!this.dataCache) return;
-        
-        debugTool.logInfo('Rendering analytics page');
-        
-        // Render price chart
-        this.renderPriceChart();
-        
-        // Render volume chart
-        this.renderVolumeChart();
-        
-        // Render other statistics
-        this.renderStats();
-    }
-    
-    /**
-     * Render the price chart
-     */
-    renderPriceChart() {
-        const chartContainer = this.container.querySelector('#price-chart');
-        
-        if (!chartContainer) return;
-        
-        if (!this.charts.has('price')) {
-            // Create new chart
-            const chart = createChart(chartContainer, {
-                type: 'line',
-                title: 'Price History',
-                xAxisLabel: 'Time',
-                yAxisLabel: 'Price ($)'
-            });
+        try {
+            debugTool.logInfo(`Changing timeframe to ${timeframe}`);
             
-            this.charts.set('price', chart);
-        }
-        
-        // Update existing chart with new data
-        const chart = this.charts.get('price');
-        updateChart(chart, this.dataCache.priceData);
-    }
-    
-    /**
-     * Render the volume chart
-     */
-    renderVolumeChart() {
-        const chartContainer = this.container.querySelector('#volume-chart');
-        
-        if (!chartContainer) return;
-        
-        if (!this.charts.has('volume')) {
-            // Create new chart
-            const chart = createChart(chartContainer, {
-                type: 'bar',
-                title: 'Volume',
-                xAxisLabel: 'Time',
-                yAxisLabel: 'Volume ($)'
-            });
-            
-            this.charts.set('volume', chart);
-        }
-        
-        // Update existing chart with new data
-        const chart = this.charts.get('volume');
-        updateChart(chart, this.dataCache.volumeData);
-    }
-    
-    /**
-     * Render statistics
-     */
-    renderStats() {
-        // Update statistics in UI
-        const stats = this.dataCache.stats;
-        
-        if (stats) {
-            // Update each statistic
-            Object.entries(stats).forEach(([key, value]) => {
-                const element = this.container.querySelector(`#stat-${key}`);
-                if (element) {
-                    element.textContent = value;
+            // Update active state on buttons
+            const timeframeButtons = this.container.querySelectorAll('.timeframe-selector button');
+            timeframeButtons.forEach(button => {
+                if (button.dataset.timeframe === timeframe) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
                 }
             });
+            
+            // Update timeframe and reload data
+            this.timeframe = timeframe;
+            await this.loadData();
+            
+        } catch (error) {
+            debugTool.logError('Failed to change timeframe:', error);
         }
     }
     
     /**
-     * Clean up resources when navigating away
+     * Render the analytics page
+     */
+    render() {
+        if (!this.dataCache) {
+            debugTool.logWarning('No data to render in analytics');
+            return;
+        }
+        
+        // Render different components
+        this.renderPriceChart();
+        this.renderVolumeChart();
+        this.renderStats();
+        
+        debugTool.logInfo('Analytics page rendered');
+    }
+    
+    /**
+     * Render the price chart component
+     */
+    renderPriceChart() {
+        const priceChartContainer = this.container.querySelector('#price-chart');
+        
+        if (!priceChartContainer) {
+            debugTool.logError('Price chart container not found');
+            return;
+        }
+        
+        if (!this.charts.has('price')) {
+            // Create new chart if doesn't exist
+            const chart = createChart(priceChartContainer, 'Price', this.dataCache.priceData);
+            this.charts.set('price', chart);
+        } else {
+            // Update existing chart
+            const chart = this.charts.get('price');
+            updateChart(chart, this.dataCache.priceData);
+        }
+    }
+    
+    /**
+     * Render the volume chart component
+     */
+    renderVolumeChart() {
+        const volumeChartContainer = this.container.querySelector('#volume-chart');
+        
+        if (!volumeChartContainer) {
+            debugTool.logError('Volume chart container not found');
+            return;
+        }
+        
+        if (!this.charts.has('volume')) {
+            // Create new chart if doesn't exist
+            const chart = createChart(volumeChartContainer, 'Volume', this.dataCache.volumeData);
+            this.charts.set('volume', chart);
+        } else {
+            // Update existing chart
+            const chart = this.charts.get('volume');
+            updateChart(chart, this.dataCache.volumeData);
+        }
+    }
+    
+    /**
+     * Render the analytics stats
+     */
+    renderStats() {
+        // Update stats values
+        const statsElements = this.container.querySelectorAll('.analytics-stat span');
+        
+        if (statsElements.length >= 4) {
+            statsElements[0].textContent = this.dataCache.stats.totalVolume;
+            statsElements[1].textContent = this.dataCache.stats.averagePrice;
+            statsElements[2].textContent = this.dataCache.stats.priceChange;
+            statsElements[3].textContent = this.dataCache.stats.transactions;
+        }
+    }
+    
+    /**
+     * Clean up resources when leaving the page
      */
     cleanup() {
-        super.cleanup();
-        
-        // Destroy charts
+        // Clean up charts
         this.charts.forEach(chart => {
             if (chart && typeof chart.destroy === 'function') {
                 chart.destroy();
@@ -177,6 +168,26 @@ export class AnalyticsPage extends BasePage {
         });
         this.charts.clear();
         
+        // Call base cleanup
+        super.cleanup();
+        
         debugTool.logInfo('Analytics page cleaned up');
+    }
+}
+
+/**
+ * Load the analytics page
+ * @returns {AnalyticsPage} The analytics page instance
+ */
+export function loadAnalytics() {
+    console.log('Loading analytics page');
+    try {
+        const analyticsPage = new AnalyticsPage();
+        analyticsPage.initialize();
+        analyticsPage.loadData();
+        return analyticsPage;
+    } catch (error) {
+        console.error('Error loading analytics page:', error);
+        throw error;
     }
 } 
