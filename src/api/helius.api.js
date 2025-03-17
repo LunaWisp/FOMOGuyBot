@@ -21,7 +21,12 @@ class HeliusAPI {
                     'Authorization': `Bearer ${this.apiKey}`
                 }
             });
-            return response.data;
+            
+            if (!response.data || !response.data[0]) {
+                throw new Error(`No metadata found for token ${mintAddress}`);
+            }
+            
+            return response.data[0];
         } catch (error) {
             console.error('Error fetching token metadata:', error.response?.data || error.message);
             throw error;
@@ -30,7 +35,11 @@ class HeliusAPI {
 
     async getTokenPrice(mintAddress) {
         try {
-            const response = await axios.get(`${this.baseUrl}/v0/token-price`, {
+            if (!mintAddress || mintAddress.length < 32 || mintAddress.length > 44) {
+                throw new Error(`Invalid Solana address format: ${mintAddress}`);
+            }
+            
+            const response = await axios.get(`${this.baseUrl}/v1/token-price`, {
                 params: {
                     address: mintAddress
                 },
@@ -38,6 +47,11 @@ class HeliusAPI {
                     'Authorization': `Bearer ${this.apiKey}`
                 }
             });
+            
+            if (!response.data || !response.data.price) {
+                throw new Error(`No price data found for token ${mintAddress}`);
+            }
+            
             return response.data;
         } catch (error) {
             console.error('Error fetching token price:', error.response?.data || error.message);
@@ -47,7 +61,8 @@ class HeliusAPI {
 
     async subscribeToTokenTransactions(mintAddress, callback) {
         try {
-            const ws = new WebSocket(config.helius.endpoints.websocket);
+            const WebSocketImpl = require('ws');
+            const ws = new WebSocketImpl(config.helius.endpoints.websocket);
             
             ws.on('open', () => {
                 console.log('WebSocket connected');
@@ -66,14 +81,22 @@ class HeliusAPI {
             });
 
             ws.on('message', (data) => {
-                const response = JSON.parse(data);
-                if (response.method === 'tokenAccountsNotification') {
-                    callback(response.params);
+                try {
+                    const response = JSON.parse(data);
+                    if (response.method === 'tokenAccountsNotification') {
+                        callback(response.params);
+                    }
+                } catch (error) {
+                    console.error('Error processing WebSocket message:', error);
                 }
             });
 
             ws.on('error', (error) => {
                 console.error('WebSocket error:', error);
+            });
+
+            ws.on('close', () => {
+                console.log('WebSocket connection closed');
             });
 
             return ws;

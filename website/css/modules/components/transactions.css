@@ -1,0 +1,104 @@
+/* Transaction List */
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* Transaction Item */
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-sm);
+    transition: transform var(--transition-fast);
+}
+
+.transaction-item:hover {
+    transform: translateX(5px);
+}
+
+.transaction-item.buy {
+    border-left: 4px solid var(--success-color);
+}
+
+.transaction-item.sell {
+    border-left: 4px solid var(--error-color);
+}
+
+.transaction-item.unknown {
+    border-left: 4px solid var(--warning-color);
+}
+
+/* Transaction Type */
+.transaction-type {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: bold;
+}
+
+.transaction-item.buy .transaction-type {
+    color: var(--success-color);
+}
+
+.transaction-item.sell .transaction-type {
+    color: var(--error-color);
+}
+
+.transaction-item.unknown .transaction-type {
+    color: var(--warning-color);
+}
+
+/* Transaction Details */
+.transaction-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.transaction-token {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.transaction-address {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.7;
+    word-break: break-all;
+}
+
+.transaction-amount {
+    font-weight: bold;
+}
+
+.transaction-time {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
+/* Transaction Section */
+.transaction-section {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+/* Responsive Transactions */
+@media (max-width: 768px) {
+    .transaction-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+
+    .transaction-details {
+        width: 100%;
+    }
+} 

@@ -1,5 +1,6 @@
 const heliusAPI = require('../api/helius.api');
 const EventEmitter = require('events');
+const terminalUI = require('../utils/terminal.ui');
 
 class TokenTrackerBot extends EventEmitter {
     constructor() {
@@ -10,6 +11,8 @@ class TokenTrackerBot extends EventEmitter {
 
     async trackToken(mintAddress, priceAlertThreshold = { up: 5, down: 5 }) {
         try {
+            terminalUI.startSpinner(`Tracking token ${mintAddress}...`);
+            
             // Get initial token data
             const [metadata, price] = await Promise.all([
                 heliusAPI.getTokenMetadata(mintAddress),
@@ -38,6 +41,9 @@ class TokenTrackerBot extends EventEmitter {
                 price
             });
 
+            terminalUI.stopSpinner(true, `Successfully tracking token ${mintAddress}`);
+            terminalUI.displayTokenInfo({ mintAddress, metadata, lastPrice: price });
+
             // Start price monitoring
             this.monitorTokenPrice(mintAddress);
 
@@ -46,7 +52,8 @@ class TokenTrackerBot extends EventEmitter {
                 price
             };
         } catch (error) {
-            console.error(`Error tracking token ${mintAddress}:`, error);
+            terminalUI.stopSpinner(false, `Failed to track token ${mintAddress}`);
+            terminalUI.displayError(error);
             throw error;
         }
     }
@@ -55,36 +62,47 @@ class TokenTrackerBot extends EventEmitter {
         const checkPrice = async () => {
             try {
                 const tokenData = this.trackedTokens.get(mintAddress);
+                if (!tokenData) return;
+                
                 const newPrice = await heliusAPI.getTokenPrice(mintAddress);
-                const thresholds = this.priceAlertThresholds.get(mintAddress);
+                const thresholds = this.priceAlertThresholds.get(mintAddress) || { up: 5, down: 5 };
 
-                if (tokenData && tokenData.lastPrice) {
-                    const priceChange = ((newPrice.value - tokenData.lastPrice.value) / tokenData.lastPrice.value) * 100;
+                if (tokenData.lastPrice) {
+                    const oldPrice = tokenData.lastPrice.price;
+                    const currentPrice = newPrice.price;
+                    
+                    if (oldPrice > 0) {
+                        const priceChange = ((currentPrice - oldPrice) / oldPrice) * 100;
 
-                    if (Math.abs(priceChange) >= thresholds.up && priceChange > 0) {
-                        this.emit('priceAlert', {
-                            mintAddress,
-                            type: 'increase',
-                            change: priceChange,
-                            oldPrice: tokenData.lastPrice.value,
-                            newPrice: newPrice.value
-                        });
-                    } else if (Math.abs(priceChange) >= thresholds.down && priceChange < 0) {
-                        this.emit('priceAlert', {
-                            mintAddress,
-                            type: 'decrease',
-                            change: Math.abs(priceChange),
-                            oldPrice: tokenData.lastPrice.value,
-                            newPrice: newPrice.value
-                        });
+                        if (Math.abs(priceChange) >= thresholds.up && priceChange > 0) {
+                            const alert = {
+                                mintAddress,
+                                type: 'increase',
+                                change: priceChange.toFixed(2),
+                                oldPrice: oldPrice,
+                                newPrice: currentPrice
+                            };
+                            this.emit('priceAlert', alert);
+                            terminalUI.displayPriceAlert(alert);
+                        } else if (Math.abs(priceChange) >= thresholds.down && priceChange < 0) {
+                            const alert = {
+                                mintAddress,
+                                type: 'decrease',
+                                change: Math.abs(priceChange).toFixed(2),
+                                oldPrice: oldPrice,
+                                newPrice: currentPrice
+                            };
+                            this.emit('priceAlert', alert);
+                            terminalUI.displayPriceAlert(alert);
+                        }
                     }
-
-                    // Update stored price
-                    tokenData.lastPrice = newPrice;
-                    this.trackedTokens.set(mintAddress, tokenData);
                 }
+
+                // Update stored price
+                tokenData.lastPrice = newPrice;
+                this.trackedTokens.set(mintAddress, tokenData);
             } catch (error) {
-                console.error(`Error monitoring price for ${mintAddress}:`, error);
+                terminalUI.error(`Error monitoring price for ${mintAddress}: ${error.message}`);
             }
         };
 
@@ -94,6 +112,7 @@ class TokenTrackerBot extends EventEmitter {
 
     handleTokenTransaction(transaction) {
         this.emit('transaction', transaction);
+        terminalUI.displayTransaction(transaction);
     }
 
     stopTracking(mintAddress) {
@@ -103,15 +122,19 @@ class TokenTrackerBot extends EventEmitter {
             this.trackedTokens.delete(mintAddress);
             this.priceAlertThresholds.delete(mintAddress);
             this.emit('tokenRemoved', mintAddress);
+            terminalUI.info(`Stopped tracking token ${mintAddress}`);
         }
     }
 
     getTrackedTokens() {
-        return Array.from(this.trackedTokens.entries()).map(([mintAddress, data]) => ({
+        const tokens = Array.from(this.trackedTokens.entries()).map(([mintAddress, data]) => ({
             mintAddress,
             metadata: data.metadata,
             lastPrice: data.lastPrice
         }));
+        
+        terminalUI.displayTokenTable(tokens);
+        return tokens;
     }
 }
 

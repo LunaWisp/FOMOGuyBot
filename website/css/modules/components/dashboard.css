@@ -1,0 +1,150 @@
+/* Stats Section */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    grid-column: span 2;
+}
+
+.stats-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    text-align: center;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: transform var(--transition-fast);
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+}
+
+.stats-card h3 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1.1em;
+    color: var(--secondary-color);
+}
+
+.stats-card p {
+    margin: 0;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+/* Bot Status Section */
+.bot-status-section {
+    grid-column: span 2;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.bot-status {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.bot-status.running {
+    background-color: var(--success-color);
+    color: var(--background-color);
+}
+
+.bot-status.stopped {
+    background-color: var(--error-color);
+    color: var(--background-color);
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.quick-action {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.quick-action:hover:not(:disabled) {
+    background-color: var(--hover-color);
+}
+
+.quick-action:disabled {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+}
+
+/* Top Performers Section */
+.top-performers-section {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+.performer-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.performer-item:last-child {
+    border-bottom: none;
+}
+
+/* Bot Controls */
+.bot-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+/* Status Indicators */
+.status-connected {
+    color: var(--success-color);
+}
+
+.status-connected:before {
+    content: "●";
+    margin-right: var(--spacing-xs);
+    font-size: 0.8em;
+}
+
+.status-disconnected {
+    color: var(--error-color);
+}
+
+.status-disconnected:before {
+    content: "●";
+    margin-right: var(--spacing-xs);
+    font-size: 0.8em;
+}
+
+/* Responsive Dashboard */
+@media (max-width: 768px) {
+    .stats-section {
+        grid-template-columns: 1fr;
+    }
+
+    .bot-status-section {
+        margin-top: var(--spacing-lg);
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-action {
+        width: 100%;
+    }
+} 

@@ -1,12 +1,14 @@
 require('dotenv').config();
 
+// Updated API key with a valid format
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY || '9288ffbd-269f-4b80-b1e2-7832f462c9df';
 
 module.exports = {
     HELIUS_API_KEY,
     HELIUS_API_ENDPOINTS: {
         TOKEN_METADATA: 'https://api.helius.xyz/v1/token-metadata',
-        TOKEN_PRICE: 'https://api.helius.xyz/v0/token-price'
+        TOKEN_PRICE: 'https://api.helius.xyz/v1/token-price',
+        DAS: 'https://api.helius.xyz/v0/addresses/tokens'
     },
     helius: {
         apiKey: HELIUS_API_KEY,

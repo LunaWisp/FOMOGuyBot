@@ -1,0 +1,136 @@
+/* Form Elements */
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--card-background);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--purple-glow);
+}
+
+/* Input Feedback */
+.input-feedback {
+    margin-top: var(--spacing-xs);
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.input-feedback.error {
+    color: var(--error-color);
+}
+
+.input-feedback.valid {
+    color: var(--success-color);
+}
+
+.input-feedback.warning {
+    color: var(--warning-color);
+}
+
+/* Form Controls */
+.form-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+/* Settings Form */
+.setting-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-color);
+}
+
+.setting-group input[type="number"] {
+    width: 100px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+/* Notification Settings */
+.notification-settings label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-color);
+}
+
+/* Form Validation */
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+    border-color: var(--error-color);
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-color: var(--success-color);
+}
+
+/* Form Animations */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 var(--purple-glow);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(155, 89, 182, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 var(--purple-glow);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive Forms */
+@media (max-width: 768px) {
+    .form-controls {
+        flex-direction: column;
+    }
+
+    .form-controls .primary-button,
+    .form-controls .secondary-button {
+        width: 100%;
+    }
+
+    .setting-group input[type="number"] {
+        width: 100%;
+    }
+} 

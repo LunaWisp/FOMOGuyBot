@@ -6,6 +6,7 @@ const cors = require('cors');
 const tokenTracker = require('./bots/tokenTracker.bot');
 const { setupLogEndpoints } = require('./api/logger.api');
 const agentRules = require('../agentRules');
+const terminalUI = require('./utils/terminal.ui');
 
 const app = express();
 const server = http.createServer(app);
@@ -32,7 +33,7 @@ const clients = new Set();
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
     clients.add(ws);
-    console.log('New client connected');
+    terminalUI.success('New client connected');
 
     // Send current token list to new client
     const trackedTokens = tokenTracker.getTrackedTokens();
@@ -55,23 +56,22 @@ wss.on('connection', (ws) => {
                     break;
             }
         } catch (error) {
-            console.error('Error handling message:', error);
+            terminalUI.displayError(error);
         }
     });
 
     // Handle client disconnection
     ws.on('close', () => {
         clients.delete(ws);
-        console.log('Client disconnected');
+        terminalUI.warning('Client disconnected');
     });
 });
 
-// Forward bot events to all connected clients
+// Broadcast to all connected clients
 function broadcastToClients(data) {
-    const message = JSON.stringify(data);
     clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
+            client.send(JSON.stringify(data));
         }
     });
 }
@@ -108,22 +108,12 @@ tokenTracker.on('tokenRemoved', (mintAddress) => {
 // Start the server
 const PORT = 8080; // Use port 8080 for consistency
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    terminalUI.box(
+        `Server running on port ${PORT}\nWebSocket endpoint: ws://localhost:${PORT}/ws`,
+        'Server Status'
+    );
     
-    // Display agent rules
-    agentRules.displayRules();
-    
-    // Start tracking initial tokens
-    const INITIAL_TOKENS = [
-        'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-        'So11111111111111111111111111111111111111112'    // Wrapped SOL
-    ];
-
-    INITIAL_TOKENS.forEach(async (mintAddress) => {
-        try {
-            await tokenTracker.trackToken(mintAddress);
-        } catch (error) {
-            console.error(`Error tracking initial token ${mintAddress}:`, error);
-        }
-    });
+    // Start listening for token requests
+    terminalUI.info('Server ready to track tokens on request');
+    terminalUI.info('Use the web interface to add tokens for tracking');
 }); 

@@ -13,7 +13,7 @@ const agentRules = {
       'Modularization is mandatory - break code into reusable, separate modules.',
       'Enhance code when possible while updating fixes or resolving errors.',
       'Keep the same website design and color scheme - no unrequested UI changes.',
-      'If something isn’t broken, don’t mess with it - avoid unnecessary changes.',
+      'If something isn\'t broken, don\'t mess with it - avoid unnecessary changes.',
       'Make everything in the future with index.js files for consistency.',
       'Always check for errors and proper pathing in the entire codebase after fixing, building, or upgrading.'
     ],
@@ -33,22 +33,15 @@ const agentRules = {
 
   displayRules: function(phase = 'START') {
     const timestamp = new Date().toISOString();
-    console.groupCollapsed(`Agent Rules [${phase}] - ${timestamp}`);
-    console.log('Project:', this.project);
-    console.log('Owner:', this.owner);
-    console.log('Date Created:', this.dateCreated);
-    Object.keys(this.rules).forEach(category => {
-      console.group(category.toUpperCase());
-      this.rules[category].forEach((rule, index) => {
-        console.log(`${index + 1}. ${rule}`);
-      });
-      console.groupEnd();
-    });
-    console.groupEnd();
-
+    
+    // Only log to file, don't display in console
     if (fs) {
-      const logEntry = `[${timestamp}] RULES [${phase}]:\n${this.formatRulesForLog()}\n`;
-      fs.appendFileSync(logFilePath, logEntry, 'utf8');
+      try {
+        const logEntry = `[${timestamp}] RULES [${phase}]:\n${this.formatRulesForLog()}\n`;
+        fs.appendFileSync(logFilePath, logEntry, 'utf8');
+      } catch (error) {
+        // Silent fail - don't break startup if logging fails
+      }
     }
   },
 
