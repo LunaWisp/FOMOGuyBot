@@ -1,12 +1,12 @@
 // Token data structure
-export const TokenTypes = {
+const TokenTypes = {
     SOLANA: 'solana',
     ETH: 'ethereum',
     // Add more token types as needed
 };
 
 // Message types for WebSocket communication
-export const MessageTypes = {
+const MessageTypes = {
     TOKEN_UPDATE: 'token_update',
     PRICE_ALERT: 'price_alert',
     TRANSACTION: 'transaction',
@@ -14,8 +14,10 @@ export const MessageTypes = {
 };
 
 // Status types for bot connection
-export const StatusTypes = {
+const StatusTypes = {
     CONNECTED: 'connected',
     DISCONNECTED: 'disconnected',
     ERROR: 'error'
 }; 
+
+module.exports = { TokenTypes, MessageTypes, StatusTypes };

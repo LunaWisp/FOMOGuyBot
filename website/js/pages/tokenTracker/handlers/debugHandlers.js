@@ -3,12 +3,12 @@
  * Setup and management of debug tools for Token Tracker
  */
 
-import { 
+const { 
     debugTool, 
     trackAllButtons, 
     inspectAllButtons, 
     highlightTrackedButtons 
-} from '../../../utils/debug/index.js';
+} = require('../../../utils/debug/index.js');
 
 /**
  * Set up debug tools for the token tracker

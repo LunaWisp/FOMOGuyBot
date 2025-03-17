@@ -3,9 +3,9 @@
  * Main entry point for the Token Tracker functionality
  */
 
-import { BasePage } from '../common/index.js';
-import { TokenTrackerCore } from './core/index.js';
-import { debugTool } from '../../utils/debug/index.js';
+const { BasePage } = require('../common/index.js');
+const { TokenTrackerCore } = require('./core/index.js');
+const { debugTool } = require('../../utils/debug/index.js');
 
 export class TokenTrackerPage extends BasePage {
     constructor() {

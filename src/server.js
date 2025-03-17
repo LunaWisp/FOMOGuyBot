@@ -2,15 +2,18 @@ const WebSocket = require('ws');
 const http = require('http');
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 const tokenTracker = require('./bots/tokenTracker.bot');
 const { setupLogEndpoints } = require('./api/logger.api');
+const agentRules = require('../agentRules');
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server, path: '/ws' });
 
-// Middleware for parsing JSON
+// Middleware for parsing JSON and CORS
 app.use(express.json());
+app.use(cors());
 
 // Serve static files from the website directory
 app.use(express.static(path.join(__dirname, '../website')));
@@ -103,9 +106,12 @@ tokenTracker.on('tokenRemoved', (mintAddress) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = 8080; // Use port 8080 for consistency
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    
+    // Display agent rules
+    agentRules.displayRules();
     
     // Start tracking initial tokens
     const INITIAL_TOKENS = [

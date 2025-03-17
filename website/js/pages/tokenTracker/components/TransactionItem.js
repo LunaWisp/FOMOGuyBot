@@ -2,7 +2,7 @@
  * Transaction Item Component
  * Renders transaction items
  */
-import { shortenAddress, formatTime } from '../utils/formatters.js';
+const { shortenAddress, formatTime } = require('../utils/formatters.js');
 
 /**
  * Creates a transaction element

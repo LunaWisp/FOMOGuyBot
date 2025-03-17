@@ -3,7 +3,7 @@
  * Provides common functionality for all pages
  */
 
-import { debugTool } from '../../utils/debug/index.js';
+const { debugTool } = require('../../utils/debug/index.js');
 
 export class BasePage {
     /**

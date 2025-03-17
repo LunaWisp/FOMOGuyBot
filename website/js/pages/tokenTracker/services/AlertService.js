@@ -2,7 +2,7 @@
  * Alert Service
  * Handles alert-related operations
  */
-import { apiService } from '../../../services/api.js';
+const { apiService } = require('../../../services/api.js');
 
 export class AlertService {
     constructor() {

@@ -1,9 +1,9 @@
 /**
  * Dashboard Page Module
  */
-import { BasePage } from '../common/index.js';
-import { apiService } from '../../services/index.js';
-import { debugTool } from '../../utils/debug/index.js';
+const { BasePage } = require('../common/index.js');
+const { apiService } = require('../../services/index.js');
+const { debugTool } = require('../../utils/debug/index.js');
 
 export class DashboardPage extends BasePage {
     constructor() {

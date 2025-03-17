@@ -3,8 +3,8 @@
  * Handles UI updates for the Token Tracker
  */
 
-import { filterTokens, filterTransactions } from '../utils/index.js';
-import { createTokenElement, createAlertElement, createTransactionElement } from '../components/index.js';
+const { filterTokens, filterTransactions } = require('../utils/index.js');
+const { createTokenElement, createAlertElement, createTransactionElement } = require('../components/index.js');
 
 /**
  * Update the tokens UI

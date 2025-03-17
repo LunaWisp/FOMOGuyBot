@@ -2,7 +2,7 @@
  * WebSocket Handlers
  * Handles all WebSocket-related events for the TokenTracker page
  */
-import { websocketService } from '../../../services/websocket.js';
+const { websocketService } = require('../../../services/websocket.js');
 
 /**
  * Sets up WebSocket event handlers

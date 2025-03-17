@@ -1,0 +1,4 @@
+#!/bin/sh
+"C:/Program Files/nodejs/node.exe" -e "require('C:/Users/chris/Desktop/FOMOBot/agentRules.js').displayRules('START')"
+"C:/Program Files/nodejs/node.exe" -e "require('C:/Users/chris/Desktop/FOMOBot/agentRules.js').displayRules('FINISH')"
+exit 0

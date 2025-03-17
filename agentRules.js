@@ -1,4 +1,7 @@
 // agentRules.js
+const fs = typeof require !== 'undefined' ? require('fs') : null;
+const logFilePath = 'C:\\Users\\chris\\Desktop\\FOMOBot\\logs\\console.log';
+
 const agentRules = {
   project: 'Crypto Token Tracker Server',
   dateCreated: 'March 17, 2025',
@@ -28,8 +31,9 @@ const agentRules = {
     ]
   },
 
-  displayRules: function() {
-    console.groupCollapsed('Agent Rules for Crypto Token Tracker Server');
+  displayRules: function(phase = 'START') {
+    const timestamp = new Date().toISOString();
+    console.groupCollapsed(`Agent Rules [${phase}] - ${timestamp}`);
     console.log('Project:', this.project);
     console.log('Owner:', this.owner);
     console.log('Date Created:', this.dateCreated);
@@ -41,13 +45,29 @@ const agentRules = {
       console.groupEnd();
     });
     console.groupEnd();
+
+    if (fs) {
+      const logEntry = `[${timestamp}] RULES [${phase}]:\n${this.formatRulesForLog()}\n`;
+      fs.appendFileSync(logFilePath, logEntry, 'utf8');
+    }
+  },
+
+  formatRulesForLog: function() {
+    let output = `Project: ${this.project}\nOwner: ${this.owner}\nDate Created: ${this.dateCreated}\n`;
+    Object.keys(this.rules).forEach(category => {
+      output += `${category.toUpperCase()}:\n`;
+      this.rules[category].forEach((rule, index) => {
+        output += `  ${index + 1}. ${rule}\n`;
+      });
+    });
+    return output;
   }
 };
 
+// Auto-run START when loaded
+agentRules.displayRules('START');
+
+// Export for Node.js
 if (typeof module !== 'undefined') {
   module.exports = agentRules;
-}
-
-if (typeof window !== 'undefined') {
-  agentRules.displayRules();
 }

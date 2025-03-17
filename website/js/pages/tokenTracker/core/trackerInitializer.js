@@ -3,10 +3,10 @@
  * Handles initialization, bot management, and polling for the Token Tracker
  */
 
-import { debugTool, debugAddTokenButton } from '../../../utils/debug/index.js';
-import { showError } from '../utils/index.js';
-import { apiService } from '../../../services/api.js';
-import { connectWebSocket, startBot as startBotHandler, stopBot as stopBotHandler } from '../handlers/index.js';
+const { debugTool, debugAddTokenButton } = require('../../../utils/debug/index.js');
+const { showError } = require('../utils/index.js');
+const { apiService } = require('../../../services/api.js');
+const { connectWebSocket, startBot as startBotHandler, stopBot as stopBotHandler } = require('../handlers/index.js');
 
 /**
  * Initialize the Token Tracker

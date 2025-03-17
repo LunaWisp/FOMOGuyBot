@@ -1,5 +1,5 @@
 // Import bot interfaces
-import { TokenTrackerBot } from './tokenTracker/index.js';
+const { TokenTrackerBot } = require('./tokenTracker/index.js');
 
 // Bot interface registry
 const bots = {
@@ -7,10 +7,10 @@ const bots = {
 };
 
 // Export individual bots
-export const tokenTrackerBot = bots.tokenTracker;
+const tokenTrackerBot = bots.tokenTracker;
 
 // Export all bots
-export default bots;
+module.exports = bots;
 
 // Helper function to get a bot instance
 export function getBot(botType) {

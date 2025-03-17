@@ -1,4 +1,4 @@
-import { StatusTypes } from './types.js';
+const { StatusTypes } = require('./types.js');
 
 export function updateStatus(isConnected) {
     const statusElement = document.getElementById('bot-status');

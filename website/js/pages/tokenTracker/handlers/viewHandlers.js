@@ -3,7 +3,7 @@
  * Handles view mode toggling for token display
  */
 
-import { debugTool } from '../../../utils/debug';
+const { debugTool } = require('../../../utils/debug');
 
 /**
  * Sets up event listeners for view mode toggle

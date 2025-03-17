@@ -2,7 +2,7 @@
  * Transaction Service
  * Handles transaction-related operations
  */
-import { apiService } from '../../../services/api.js';
+const { apiService } = require('../../../services/api.js');
 
 export class TransactionService {
     constructor() {

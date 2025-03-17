@@ -399,4 +399,6 @@ class ApiService {
 }
 
 // Export a singleton instance
-export const apiService = new ApiService(); 
+const apiService = new ApiService(); 
+
+module.exports = { apiService };

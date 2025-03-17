@@ -5,7 +5,8 @@
 
 const path = require('path');
 const { logger, portUtils, serverUtils } = require('./src/utils');
-const { debugTool, serverDebug } = require('./website/js/utils/debug');
+const { debugTool } = require('./website/js/utils/debug');
+const serverDebug = require('./website/js/utils/debug/server');
 
 // Main function to orchestrate the server launch
 async function main() {

@@ -2,7 +2,7 @@
  * Alert Item Component
  * Renders alert items
  */
-import { formatTime } from '../utils/formatters.js';
+const { formatTime } = require('../utils/formatters.js');
 
 /**
  * Creates an alert element

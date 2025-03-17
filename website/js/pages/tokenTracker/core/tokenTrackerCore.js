@@ -4,22 +4,22 @@
  */
 
 // Import services
-import { TokenService, AlertService, TransactionService } from '../services/index.js';
-import { apiService, webSocketService } from '../../../services/index.js';
-import { debugTool } from '../../../utils/debug/index.js';
+const { TokenService, AlertService, TransactionService } = require('../services/index.js');
+const { apiService, webSocketService } = require('../../../services/index.js');
+const { debugTool } = require('../../../utils/debug/index.js');
 
 // Import modules
-import { initialize, startBot, stopBot, startPolling, stopPolling } from '.';
-import { 
+const { initialize, startBot, stopBot, startPolling, stopPolling } = require('.');
+const { 
     updateTokensUI, 
     updateAlertsUI, 
     updateTransactionsUI, 
     updateBotStatusUI, 
     render 
-} from '../ui';
+} = require('../ui');
 
 // Import handlers
-import {
+const {
     setupTokenInputHandlers,
     setupSearchHandlers,
     setupViewModeHandlers,
@@ -30,10 +30,10 @@ import {
     setupDebugTools,
     setupWebSocketHandlers,
     connectWebSocket
-} from '../handlers';
+} = require('../handlers');
 
 // Import utilities
-import { filterTokens, filterTransactions, showError, showNotification } from '../utils';
+const { filterTokens, filterTransactions, showError, showNotification } = require('../utils');
 
 export class TokenTrackerCore {
     constructor() {

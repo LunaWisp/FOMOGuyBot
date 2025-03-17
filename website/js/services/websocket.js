@@ -289,4 +289,6 @@ class WebSocketService {
 }
 
 // Export a singleton instance
-export const websocketService = new WebSocketService(); 
+const websocketService = new WebSocketService(); 
+
+module.exports = { websocketService };

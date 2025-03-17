@@ -3,7 +3,7 @@
  * Handles global event delegation for the Token Tracker
  */
 
-import { debugTool } from '../../../utils/debug/index.js';
+const { debugTool } = require('../../../utils/debug/index.js');
 
 /**
  * Setup event delegation for all button clicks in the token tracker

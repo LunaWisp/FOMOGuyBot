@@ -6,44 +6,41 @@ class HeliusAPI {
     constructor() {
         this.connection = new Connection(config.helius.endpoints.mainnet);
         this.apiKey = config.helius.apiKey;
+        this.baseUrl = 'https://api.helius.xyz';
     }
 
     async getTokenMetadata(mintAddress) {
         try {
-            const response = await axios.post(
-                `${config.helius.endpoints.v1}/token-metadata`,
-                {
-                    mintAccounts: [mintAddress],
-                    includeOffChain: true,
-                    disableCache: false,
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.apiKey}`
-                    }
+            const response = await axios.post(`${this.baseUrl}/v1/token-metadata`, {
+                mintAccounts: [mintAddress],
+                includeOffChain: true,
+                disableCache: false
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`
                 }
-            );
-            return response.data[0];
+            });
+            return response.data;
         } catch (error) {
-            console.error('Error fetching token metadata:', error);
+            console.error('Error fetching token metadata:', error.response?.data || error.message);
             throw error;
         }
     }
 
     async getTokenPrice(mintAddress) {
         try {
-            const response = await axios.get(
-                `${config.helius.endpoints.v0}/token-price?address=${mintAddress}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.apiKey}`
-                    }
+            const response = await axios.get(`${this.baseUrl}/v0/token-price`, {
+                params: {
+                    address: mintAddress
+                },
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`
                 }
-            );
+            });
             return response.data;
         } catch (error) {
-            console.error('Error fetching token price:', error);
+            console.error('Error fetching token price:', error.response?.data || error.message);
             throw error;
         }
     }

@@ -37,7 +37,7 @@ const defaultOptions = {
 };
 
 // Chart configurations
-export const chartConfigs = {
+const chartConfigs = {
     price: {
         type: 'line',
         options: {
@@ -152,8 +152,10 @@ export function createChart(ctx, type, data, options = {}) {
 }
 
 // Chart colors
-export const chartColors = {
+const chartColors = {
     price: 'rgb(75, 192, 192)',
     volume: 'rgb(153, 102, 255)',
     transactions: 'rgb(255, 99, 132)'
 }; 
+
+module.exports = { chartConfigs, chartColors };

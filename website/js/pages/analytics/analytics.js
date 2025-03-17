@@ -3,10 +3,10 @@
  * Handles analytics functionality
  */
 
-import { BasePage } from '../common/index.js';
-import { apiService } from '../../services/index.js';
-import { createChart, updateChart } from '../../utils/index.js';
-import { debugTool } from '../../utils/debug/index.js';
+const { BasePage } = require('../common/index.js');
+const { apiService } = require('../../services/index.js');
+const { createChart, updateChart } = require('../../utils/index.js');
+const { debugTool } = require('../../utils/debug/index.js');
 
 export class AnalyticsPage extends BasePage {
     constructor() {

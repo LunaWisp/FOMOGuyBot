@@ -3,8 +3,8 @@
  * Manages token input and search functionality
  */
 
-import { debugTool } from '../../../utils/debug/index.js';
-import { filterTokens, showNotification } from '../utils/index.js';
+const { debugTool } = require('../../../utils/debug/index.js');
+const { filterTokens, showNotification } = require('../utils/index.js');
 
 /**
  * Set up the token input and search button handlers

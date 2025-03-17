@@ -3,7 +3,7 @@
  * Handles token search functionality
  */
 
-import { debugTool } from '../../../utils/debug';
+const { debugTool } = require('../../../utils/debug');
 
 /**
  * Sets up event listeners for token search

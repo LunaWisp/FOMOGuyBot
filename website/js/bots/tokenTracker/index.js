@@ -1,5 +1,5 @@
-import { MessageTypes } from './types.js';
-import { updateStatus, updateTokenDisplay, showPriceAlert, addTransaction } from './ui.js';
+const { MessageTypes } = require('./types.js');
+const { updateStatus, updateTokenDisplay, showPriceAlert, addTransaction } = require('./ui.js');
 
 export class TokenTrackerBot {
     constructor() {

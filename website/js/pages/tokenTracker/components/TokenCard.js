@@ -2,7 +2,7 @@
  * Token Card Component
  * Renders token cards and list items
  */
-import { shortenAddress, formatPrice, formatPercentage, getPriceChangeClass, formatNumber } from '../utils/formatters.js';
+const { shortenAddress, formatPrice, formatPercentage, getPriceChangeClass, formatNumber } = require('../utils/formatters.js');
 
 /**
  * Creates a token element (card or list item)

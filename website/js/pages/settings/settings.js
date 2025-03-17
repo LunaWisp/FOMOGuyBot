@@ -3,9 +3,9 @@
  * Handles user settings and configuration
  */
 
-import { BasePage } from '../common/index.js';
-import { userService, configService } from '../../services/index.js';
-import { debugTool } from '../../utils/debug/index.js';
+const { BasePage } = require('../common/index.js');
+const { userService, configService } = require('../../services/index.js');
+const { debugTool } = require('../../utils/debug/index.js');
 
 export class SettingsPage extends BasePage {
     constructor() {

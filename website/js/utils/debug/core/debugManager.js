@@ -2,10 +2,10 @@
  * Debug Manager
  * Centralized manager for all debugging features across the application
  */
-import { debugTool } from '../index.js';
-import { trackAllButtons, highlightTrackedButtons } from '../tools/buttonTools.js';
-import { inspectAllButtons } from '../tools/elementInspector.js';
-import { trackDynamicButtons, trackDOMChanges } from '../trackers/dynamicTracker.js';
+const { debugTool } = require('../index.js');
+const { trackAllButtons, highlightTrackedButtons } = require('../tools/buttonTools.js');
+const { inspectAllButtons } = require('../tools/elementInspector.js');
+const { trackDynamicButtons, trackDOMChanges } = require('../trackers/dynamicTracker.js');
 
 /**
  * Debug Manager class - initializes and manages debug tools for all pages
