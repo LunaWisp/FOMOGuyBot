@@ -3,4 +3,4 @@
  * Exports the router components
  */
 
-export { Router } from './router.js'; 
+export { initRouter } from './router.js'; 

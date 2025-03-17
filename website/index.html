@@ -29,19 +29,19 @@
         
         <aside class="sidebar" id="sidebar">
             <nav class="sidebar-nav">
-                <a href="#dashboard" data-page="dashboard" class="active">
+                <a href="#dashboard" data-page="dashboard" class="sidebar-btn active">
                     <i class="icon">📊</i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#tokenTracker" data-page="tokenTracker">
+                <a href="#tokenTracker" data-page="tokenTracker" class="sidebar-btn">
                     <i class="icon">🔍</i>
                     <span>Token Tracker</span>
                 </a>
-                <a href="#analytics" data-page="analytics">
+                <a href="#analytics" data-page="analytics" class="sidebar-btn">
                     <i class="icon">📈</i>
                     <span>Analytics</span>
                 </a>
-                <a href="#settings" data-page="settings">
+                <a href="#settings" data-page="settings" class="sidebar-btn">
                     <i class="icon">⚙️</i>
                     <span>Settings</span>
                 </a>
@@ -49,157 +49,159 @@
         </aside>
 
         <main class="main-content" id="main-content">
-            <section id="dashboard" class="content-section">
-                <div class="dashboard-grid">
-                    <div class="stats-section">
-                        <div class="stats-card">
-                            <h3>Total Tokens</h3>
-                            <p>0</p>
+            <div id="content">
+                <section id="dashboard" class="content-section">
+                    <div class="dashboard-grid">
+                        <div class="stats-section">
+                            <div class="stats-card">
+                                <h3>Total Tokens</h3>
+                                <p>0</p>
+                            </div>
+                            <div class="stats-card">
+                                <h3>Active Alerts</h3>
+                                <p>0</p>
+                            </div>
+                            <div class="stats-card">
+                                <h3>24h Volume</h3>
+                                <p>$0</p>
+                            </div>
+                            <div class="stats-card">
+                                <h3>Profit/Loss</h3>
+                                <p>0%</p>
+                            </div>
                         </div>
-                        <div class="stats-card">
-                            <h3>Active Alerts</h3>
-                            <p>0</p>
-                        </div>
-                        <div class="stats-card">
-                            <h3>24h Volume</h3>
-                            <p>$0</p>
-                        </div>
-                        <div class="stats-card">
-                            <h3>Profit/Loss</h3>
-                            <p>0%</p>
+                        <div class="bot-status-section">
+                            <div class="bot-status stopped">Bot is currently stopped</div>
+                            <div class="quick-actions">
+                                <button class="quick-action">Start Bot</button>
+                                <button class="quick-action">Add Token</button>
+                                <button class="quick-action">View Analytics</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="bot-status-section">
-                        <div class="bot-status stopped">Bot is currently stopped</div>
-                        <div class="quick-actions">
-                            <button class="quick-action">Start Bot</button>
-                            <button class="quick-action">Add Token</button>
-                            <button class="quick-action">View Analytics</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="token-tracker" class="content-section hidden">
-                <div class="section-header">
-                    <h2>Token Tracker</h2>
-                    <div class="section-actions">
-                        <div class="search-container">
-                            <input type="text" id="token-search" placeholder="Search tokens...">
-                            <button id="search-btn" class="icon-button">🔍</button>
-                        </div>
-                        <div class="view-options">
-                            <button class="view-option active" data-view="card">Cards</button>
-                            <button class="view-option" data-view="list">List</button>
+                <section id="token-tracker" class="content-section hidden">
+                    <div class="section-header">
+                        <h2>Token Tracker</h2>
+                        <div class="section-actions">
+                            <div class="search-container">
+                                <input type="text" id="token-search" placeholder="Search tokens...">
+                                <button id="search-btn" class="icon-button">🔍</button>
+                            </div>
+                            <div class="view-options">
+                                <button class="view-option active" data-view="card">Cards</button>
+                                <button class="view-option" data-view="list">List</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="token-tracker-grid">
-                    <div class="token-section">
-                        <div class="section-title">
-                            <h3>Tracked Tokens</h3>
-                            <div class="section-controls">
-                                <select id="token-filter">
+                    
+                    <div class="token-tracker-grid">
+                        <div class="token-section">
+                            <div class="section-title">
+                                <h3>Tracked Tokens</h3>
+                                <div class="section-controls">
+                                    <select id="token-filter">
+                                        <option value="all">All Tokens</option>
+                                        <option value="positive">Positive Change</option>
+                                        <option value="negative">Negative Change</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="add-token">
+                                <input type="text" id="token-input" placeholder="Enter token name, symbol or address">
+                                <button id="add-token-btn" class="primary-button">Search</button>
+                            </div>
+                            
+                            <div id="token-input-feedback" class="input-feedback"></div>
+                            
+                            <div id="tracked-tokens" class="token-list card-view">
+                                <!-- Tokens will be added here dynamically -->
+                                <div class="empty-state" id="empty-tokens">
+                                    <p>No tokens added yet. Add a token to start tracking.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alerts-section">
+                            <div class="section-title">
+                                <h3>Recent Alerts</h3>
+                                <button id="clear-alerts" class="text-button">Clear All</button>
+                            </div>
+                            <div id="token-alerts" class="alerts-list">
+                                <!-- Alerts will be added here dynamically -->
+                                <div class="empty-state" id="empty-alerts">
+                                    <p>No alerts yet. They will appear here when triggered.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="transactions-section">
+                            <div class="section-title">
+                                <h3>Recent Transactions</h3>
+                                <div class="section-controls">
+                                    <select id="transaction-filter">
+                                        <option value="all">All Types</option>
+                                        <option value="buy">Buy</option>
+                                        <option value="sell">Sell</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="token-transactions" class="transactions-list">
+                                <!-- Transactions will be added here dynamically -->
+                                <div class="empty-state" id="empty-transactions">
+                                    <p>No transactions yet. They will appear here when detected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="analytics" class="content-section hidden">
+                    <div class="analytics-grid">
+                        <div class="analytics-controls">
+                            <div class="token-selector">
+                                <select id="token-select">
                                     <option value="all">All Tokens</option>
-                                    <option value="positive">Positive Change</option>
-                                    <option value="negative">Negative Change</option>
                                 </select>
                             </div>
-                        </div>
-                        
-                        <div class="add-token">
-                            <input type="text" id="token-input" placeholder="Enter token name, symbol or address">
-                            <button id="add-token-btn" class="primary-button">Search</button>
-                        </div>
-                        
-                        <div id="token-input-feedback" class="input-feedback"></div>
-                        
-                        <div id="tracked-tokens" class="token-list card-view">
-                            <!-- Tokens will be added here dynamically -->
-                            <div class="empty-state" id="empty-tokens">
-                                <p>No tokens added yet. Add a token to start tracking.</p>
+                            <div class="timeframe-selector">
+                                <button class="active">24h</button>
+                                <button>7d</button>
+                                <button>30d</button>
                             </div>
+                        </div>
+                        <div class="chart-container">
+                            <!-- Chart will be rendered here -->
                         </div>
                     </div>
-                    
-                    <div class="alerts-section">
-                        <div class="section-title">
-                            <h3>Recent Alerts</h3>
-                            <button id="clear-alerts" class="text-button">Clear All</button>
-                        </div>
-                        <div id="token-alerts" class="alerts-list">
-                            <!-- Alerts will be added here dynamically -->
-                            <div class="empty-state" id="empty-alerts">
-                                <p>No alerts yet. They will appear here when triggered.</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="transactions-section">
-                        <div class="section-title">
-                            <h3>Recent Transactions</h3>
-                            <div class="section-controls">
-                                <select id="transaction-filter">
-                                    <option value="all">All Types</option>
-                                    <option value="buy">Buy</option>
-                                    <option value="sell">Sell</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="token-transactions" class="transactions-list">
-                            <!-- Transactions will be added here dynamically -->
-                            <div class="empty-state" id="empty-transactions">
-                                <p>No transactions yet. They will appear here when detected.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <section id="analytics" class="content-section hidden">
-                <div class="analytics-grid">
-                    <div class="analytics-controls">
-                        <div class="token-selector">
-                            <select id="token-select">
-                                <option value="all">All Tokens</option>
-                            </select>
-                        </div>
-                        <div class="timeframe-selector">
-                            <button class="active">24h</button>
-                            <button>7d</button>
-                            <button>30d</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <!-- Chart will be rendered here -->
-                    </div>
-                </div>
-            </section>
-
-            <section id="settings" class="content-section hidden">
-                <div class="settings-grid">
-                    <div class="settings-section">
-                        <h2>Bot Settings</h2>
-                        <div class="setting-group">
-                            <label for="update-interval">Update Interval (seconds)</label>
-                            <input type="number" id="update-interval" min="1" value="30">
-                        </div>
-                        <div class="notification-settings">
-                            <label>
-                                <input type="checkbox" id="price-alerts"> Enable Price Alerts
-                            </label>
-                            <label>
-                                <input type="checkbox" id="volume-alerts"> Enable Volume Alerts
-                            </label>
-                        </div>
-                        <div class="bot-controls">
-                            <button class="primary-button">Save Settings</button>
-                            <button class="secondary-button">Reset Defaults</button>
+                <section id="settings" class="content-section hidden">
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <h2>Bot Settings</h2>
+                            <div class="setting-group">
+                                <label for="update-interval">Update Interval (seconds)</label>
+                                <input type="number" id="update-interval" min="1" value="30">
+                            </div>
+                            <div class="notification-settings">
+                                <label>
+                                    <input type="checkbox" id="price-alerts"> Enable Price Alerts
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="volume-alerts"> Enable Volume Alerts
+                                </label>
+                            </div>
+                            <div class="bot-controls">
+                                <button class="primary-button">Save Settings</button>
+                                <button class="secondary-button">Reset Defaults</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </main>
     </div>
 </body>

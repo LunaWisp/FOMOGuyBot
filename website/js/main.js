@@ -2,6 +2,7 @@
  * Main Application Entry Point
  */
 import { App } from './app.js';
+import { initRouter } from './router/index.js';
 
 // Use the global debugTool already loaded
 const debugTool = window.debugTool || console;
@@ -18,32 +19,25 @@ debugTool.logInfo('Application starting');
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    debugTool.logInfo('DOM loaded');
-
-    // Initialize the application
-    const app = new App();
+    debugTool.logInfo('DOM loaded, initializing application');
     
-    // Log initialization complete
-    debugTool.logInfo('Application initialized');
-
-    // Set up sidebar toggle
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-
-    if (sidebarToggle && sidebar && mainContent) {
-        sidebarToggle.addEventListener('click', () => {
-            debugTool.logInfo("Sidebar toggle clicked");
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
-        });
+    try {
+        // Initialize the app
+        const app = new App();
+        window.app = app;
+        
+        // Initialize the router
+        initRouter();
+        debugTool.logInfo('Router initialized');
+        
+        // Set up event listeners and UI
+        setupNavigation();
+        initBotStatus();
+        
+        debugTool.logInfo('Application initialized');
+    } catch (error) {
+        debugTool.logError('Error initializing application:', error);
     }
-    
-    // Set up navigation
-    setupNavigation();
-    
-    // Initialize bot status indicator
-    initBotStatus();
 });
 
 /**
