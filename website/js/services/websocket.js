@@ -15,6 +15,9 @@ class WebSocketService {
         this.solanaSubscriptions = new Set();
         this.fallbackMode = false;
         this.simulationInterval = null;
+        this.liveTokens = new Set(); // Track tokens with live updates
+        this.lastUpdateTime = new Map(); // Track last update time for each token
+        this.transactionCounts = new Map(); // Track transaction counts for each token
     }
 
     async connect() {
@@ -26,7 +29,7 @@ class WebSocketService {
             try {
                 // For local development, connect to localhost
                 // In production, this would connect to a real WebSocket server
-                this.ws = new WebSocket('ws://localhost:3000');
+                this.ws = new WebSocket('ws://localhost:3001/ws');
                 
                 // Set connection timeout
                 const connectionTimeout = setTimeout(() => {
@@ -104,23 +107,114 @@ class WebSocketService {
     handleMessage(message) {
         // Handle different types of messages
         if (message.type === 'token_update') {
-            // Token price update
-            this.notifySubscribers('tokenUpdate', message.data);
+            // Token price update - add live indicator and trend data
+            const tokenData = message.data;
+            
+            // Add token to live tokens set
+            if (tokenData.tokenId) {
+                this.liveTokens.add(tokenData.tokenId);
+                this.lastUpdateTime.set(tokenData.tokenId, Date.now());
+            }
+            
+            // Add live update indicator and enhanced data
+            tokenData.isLiveUpdating = true;
+            tokenData.lastUpdated = Date.now();
+            
+            // Calculate price trend if we have previous price data
+            if (tokenData.previousPrice && tokenData.price) {
+                if (tokenData.price > tokenData.previousPrice) {
+                    tokenData.priceTrend = 'up';
+                } else if (tokenData.price < tokenData.previousPrice) {
+                    tokenData.priceTrend = 'down';
+                } else {
+                    tokenData.priceTrend = 'stable';
+                }
+            }
+            
+            // Format numeric values
+            tokenData.volume24h = this.formatNumber(tokenData.volume24h);
+            tokenData.marketCap = this.formatNumber(tokenData.marketCap);
+            tokenData.liquidity = this.formatNumber(tokenData.liquidity);
+            
+            // Notify subscribers with enhanced data
+            this.notifySubscribers('tokenUpdate', tokenData);
+            
+            // Schedule removal of live indicator after 10 seconds of inactivity
+            setTimeout(() => {
+                const lastUpdate = this.lastUpdateTime.get(tokenData.tokenId);
+                const now = Date.now();
+                
+                // If no updates in last 10 seconds, remove live status
+                if (lastUpdate && (now - lastUpdate > 10000)) {
+                    this.liveTokens.delete(tokenData.tokenId);
+                    this.notifySubscribers('tokenLiveStatus', {
+                        tokenId: tokenData.tokenId,
+                        isLiveUpdating: false
+                    });
+                }
+            }, 10000);
+            
+        } else if (message.type === 'market_activity') {
+            // Market activity updates (buy/sell ratios, transaction volume)
+            const activityData = message.data;
+            
+            // Calculate ratios if not provided
+            if (!activityData.buyRatio && activityData.buyCount && activityData.sellCount) {
+                const total = activityData.buyCount + activityData.sellCount;
+                activityData.buyRatio = (activityData.buyCount / total) * 100;
+                activityData.sellRatio = (activityData.sellCount / total) * 100;
+            }
+            
+            // Format transaction size
+            if (activityData.avgTransactionSize) {
+                activityData.avgTransactionSize = this.formatNumber(activityData.avgTransactionSize);
+            }
+            
+            this.notifySubscribers('marketActivity', activityData);
+            
         } else if (message.type === 'transaction') {
             // New transaction detected
-            this.notifySubscribers('transaction', message.data);
+            const txData = message.data;
+            
+            // Add transaction count to the related token
+            if (txData.tokenId) {
+                // Get current count or start at 1
+                const currentCount = this.transactionCounts.get(txData.tokenId) || 0;
+                const newCount = currentCount + 1;
+                
+                // Store new count
+                this.transactionCounts.set(txData.tokenId, newCount);
+                
+                // Notify with transaction count update
+                this.notifySubscribers('transactionCount', {
+                    tokenId: txData.tokenId,
+                    recentTxCount: newCount
+                });
+            }
+            
+            // Format transaction amount
+            if (txData.amount) {
+                txData.amount = this.formatNumber(txData.amount);
+            }
+            
+            this.notifySubscribers('transaction', txData);
+            
         } else if (message.type === 'alert') {
             // Price/volume alert
             this.notifySubscribers('alert', message.data);
+            
         } else if (message.type === 'status') {
             // Bot status update
             this.notifySubscribers('status', message.data);
+            
         } else if (message.type === 'account_update' && message.subscription) {
             // Account update from Solana (balance, etc.)
             this.notifySubscribers(`account:${message.subscription}`, message.data);
+            
         } else if (message.type === 'program_update' && message.subscription) {
             // Program account update from Solana
             this.notifySubscribers(`program:${message.subscription}`, message.data);
+            
         } else if (message.type === 'slot') {
             // Slot update from Solana
             this.notifySubscribers('slot', message.data);
@@ -285,6 +379,21 @@ class WebSocketService {
         }
         
         this.fallbackMode = false;
+    }
+
+    // Helper method to format numbers
+    formatNumber(num) {
+        if (!num) return '0';
+        
+        if (num >= 1e9) {
+            return (num / 1e9).toFixed(2) + 'B';
+        } else if (num >= 1e6) {
+            return (num / 1e6).toFixed(2) + 'M';
+        } else if (num >= 1e3) {
+            return (num / 1e3).toFixed(2) + 'K';
+        }
+        
+        return num.toFixed(2);
     }
 }
 

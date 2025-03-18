@@ -3,8 +3,8 @@
  * Handles UI updates for the Token Tracker
  */
 
-const { filterTokens, filterTransactions } = require('../utils/index.js');
-const { createTokenElement, createAlertElement, createTransactionElement } = require('../components/index.js');
+import { filterTokens, filterTransactions } from '../utils/index.js';
+import { createTokenElement, createAlertElement, createTransactionElement } from '../components/index.js';
 
 /**
  * Update the tokens UI
@@ -12,36 +12,26 @@ const { createTokenElement, createAlertElement, createTransactionElement } = req
  */
 export function updateTokensUI() {
     console.log('Updating tokens UI');
+    
     const tokenList = document.getElementById('tracked-tokens');
     const emptyState = document.getElementById('empty-tokens');
     
     if (!tokenList) {
-        console.error('Token list container not found!');
+        console.error('Token list element not found');
         return;
     }
     
-    console.log(`Current token count: ${this.tokenService.tokens.length}`);
-    console.log(`Current search term: "${this.searchTerm}"`);
-    console.log(`Current token filter: ${this.tokenFilter}`);
+    // Clear existing content
+    tokenList.innerHTML = '';
     
-    // Filter tokens based on search term and filter option
+    // Get filtered tokens
     const filteredTokens = filterTokens(
-        this.tokenService.tokens, 
-        this.searchTerm, 
+        this.tokenService.tokens,
+        this.searchTerm,
         this.tokenFilter
     );
     
-    console.log(`Filtered token count: ${filteredTokens.length}`);
-    
-    // Hide all tokens except empty state
-    let removedCount = 0;
-    Array.from(tokenList.children).forEach(child => {
-        if (!child.classList.contains('empty-state')) {
-            child.remove();
-            removedCount++;
-        }
-    });
-    console.log(`Removed ${removedCount} existing token elements`);
+    console.log(`Filtered tokens: ${filteredTokens.length}`);
     
     // Show/hide empty state
     if (emptyState) {
@@ -68,10 +58,46 @@ export function updateTokensUI() {
     filteredTokens.forEach(token => {
         console.log(`Creating element for token: ${token.symbol}`);
         const tokenElement = createTokenElement(token, this.viewMode);
-        tokenList.appendChild(tokenElement);
+        if (tokenElement) {
+            tokenList.appendChild(tokenElement);
+        } else {
+            console.error(`Failed to create element for token: ${token.symbol}`);
+        }
     });
     
     console.log('Token UI update complete');
+}
+
+function createTokenElement(token, viewMode = 'card') {
+    if (!token || !token.address) {
+        console.error('Invalid token data:', token);
+        return null;
+    }
+    
+    const element = document.createElement('div');
+    element.className = `token-${viewMode}`;
+    element.dataset.tokenId = token.address;
+    
+    element.innerHTML = `
+        <div class="token-header">
+            <div class="token-info">
+                <h3 class="token-name">${token.symbol || 'Unknown Token'}</h3>
+                <span class="token-address">${token.address}</span>
+            </div>
+            <div class="token-price">
+                <span class="price-value">$${token.price?.toFixed(6) || '0.000000'}</span>
+                <span class="price-change ${token.change24h >= 0 ? 'positive' : 'negative'}">
+                    ${token.change24h?.toFixed(2) || '0.00'}%
+                </span>
+            </div>
+        </div>
+        <div class="token-actions">
+            <button class="view-analytics">View Analytics</button>
+            <button class="remove-token">Remove</button>
+        </div>
+    `;
+    
+    return element;
 }
 
 /**

@@ -3,20 +3,18 @@
  * Export all utility functions
  */
 
-export { 
-    formatPrice, 
-    formatChangePercentage, 
-    formatTimestamp,
-    formatAddress
-} from './formatters.js';
+import { showError, showNotification } from './uiUtils.js';
+import { formatPrice, formatPercentage, formatNumber, formatTime, shortenAddress } from './formatters.js';
+import { filterTokens, filterTransactions } from './filters.js';
 
 export {
-    showNotification,
     showError,
-    hideNotification
-} from './uiUtils.js';
-
-export {
+    showNotification,
+    formatPrice,
+    formatPercentage,
+    formatNumber,
+    formatTime,
+    shortenAddress,
     filterTokens,
     filterTransactions
-} from './filterUtils.js'; 
+}; 

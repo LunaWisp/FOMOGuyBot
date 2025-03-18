@@ -2,7 +2,7 @@
   "name": "fomo-bot",
   "version": "1.0.0",
   "description": "Crypto Token Tracker Server",
-  "type": "commonjs",
+  "type": "module",
   "main": "launch.js",
   "scripts": {
     "dev": "nodemon launch.js",

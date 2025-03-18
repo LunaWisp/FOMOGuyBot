@@ -11,7 +11,10 @@ const { websocketService } = require('../../../services/websocket.js');
 export function setupWebSocketHandlers(callbacks) {
     const { 
         onStatusUpdate, 
-        onTokenUpdate, 
+        onTokenUpdate,
+        onTokenLiveStatus,
+        onMarketActivity,
+        onTransactionCount,
         onAlert, 
         onTransaction,
         onDisconnect
@@ -22,9 +25,24 @@ export function setupWebSocketHandlers(callbacks) {
         onStatusUpdate(data.status);
     });
     
-    // Token updates
+    // Token updates with enhanced data
     websocketService.subscribe('tokenUpdate', (data) => {
         onTokenUpdate(data);
+    });
+
+    // Token live status updates
+    websocketService.subscribe('tokenLiveStatus', (data) => {
+        onTokenLiveStatus(data);
+    });
+
+    // Market activity updates
+    websocketService.subscribe('marketActivity', (data) => {
+        onMarketActivity(data);
+    });
+
+    // Transaction count updates
+    websocketService.subscribe('transactionCount', (data) => {
+        onTransactionCount(data);
     });
     
     // Alerts

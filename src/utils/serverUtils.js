@@ -18,7 +18,7 @@ function startServer(rootDir) {
       // Import and start the Express server
       const server = require('../server');
       
-      logger.success('Server is now running at: http://localhost:8080');
+      logger.success('Server is now running at: http://localhost:3001');
       logger.warning('Press Ctrl+C to stop the server');
       logger.separator();
       

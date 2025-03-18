@@ -3,14 +3,21 @@
  * Handles logging from client-side applications
  */
 
-const fs = require('fs');
-const path = require('path');
-const logFilePath = path.join(process.cwd(), 'logs', 'console.log');
+import { promises as fs } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const logFilePath = join(__dirname, '..', '..', 'logs', 'console.log');
 
 // Ensure the logs directory exists
-const logDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
+const logDir = join(__dirname, '..', '..', 'logs');
+try {
+  await fs.mkdir(logDir, { recursive: true });
+} catch (error) {
+  console.error('Failed to create logs directory:', error);
+  // Don't throw here, just log the error
 }
 
 /**
@@ -20,10 +27,15 @@ if (!fs.existsSync(logDir)) {
  * @param {string} logData.message - The log message
  * @param {Object|undefined} logData.data - Additional data
  * @param {string|undefined} logData.timestamp - When the log was created
- * @returns {boolean} Success status
+ * @returns {Promise<boolean>} Success status
  */
-function saveLog(logData) {
+async function saveLog(logData) {
   try {
+    // Validate log data
+    if (!logData || typeof logData !== 'object') {
+      throw new Error('Invalid log data: must be an object');
+    }
+
     // Use provided timestamp or create new one
     const timestamp = logData.timestamp || new Date().toISOString();
     const type = logData.type || 'LOG';
@@ -34,11 +46,13 @@ function saveLog(logData) {
     const logEntry = `[${timestamp}] [CLIENT] ${type}: ${message}${data}\n`;
     
     // Append to log file
-    fs.appendFileSync(logFilePath, logEntry, 'utf8');
+    await fs.appendFile(logFilePath, logEntry, 'utf8');
     
     return true;
   } catch (error) {
     console.error('Failed to save log:', error);
+    // Log to console as fallback
+    console.error('Original log data:', logData);
     return false;
   }
 }
@@ -48,47 +62,63 @@ function saveLog(logData) {
  * @param {Object} app - Express app instance
  */
 function setupLogEndpoints(app) {
+  if (!app || typeof app.post !== 'function') {
+    throw new Error('Invalid Express app instance provided to setupLogEndpoints');
+  }
+
   // Log API endpoint for browser clients
-  app.post('/api/log', (req, res) => {
+  app.post('/api/log', async (req, res) => {
     try {
       const logData = req.body;
       
       if (!logData || !logData.message) {
         return res.status(400).json({ 
           success: false, 
-          error: 'Invalid log data' 
+          error: 'Invalid log data: message is required' 
         });
       }
       
-      const success = saveLog(logData);
+      const success = await saveLog(logData);
       
-      return res.json({ success });
+      return res.json({ 
+        success,
+        message: success ? 'Log saved successfully' : 'Failed to save log'
+      });
     } catch (error) {
       console.error('Error in log API:', error);
       return res.status(500).json({ 
         success: false, 
-        error: 'Server error processing log' 
+        error: 'Server error processing log',
+        details: error.message
       });
     }
   });
   
   // Debug endpoint to test if logging API is working
-  app.get('/api/log/test', (req, res) => {
-    const testSuccess = saveLog({
-      type: 'INFO',
-      message: 'Log API test',
-      data: { test: true, timestamp: new Date().toISOString() }
-    });
-    
-    res.json({ 
-      success: testSuccess,
-      message: 'Log API test endpoint',
-      logPath: logFilePath
-    });
+  app.get('/api/log/test', async (req, res) => {
+    try {
+      const testSuccess = await saveLog({
+        type: 'INFO',
+        message: 'Log API test',
+        data: { test: true, timestamp: new Date().toISOString() }
+      });
+      
+      res.json({ 
+        success: testSuccess,
+        message: 'Log API test endpoint',
+        logPath: logFilePath,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error in log test endpoint:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to test logging API',
+        details: error.message
+      });
+    }
   });
 }
 
-module.exports = {
-  setupLogEndpoints,
-  saveLog
-}; 
+// Export the functions
+export { setupLogEndpoints, saveLog }; 

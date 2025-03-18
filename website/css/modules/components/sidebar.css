@@ -1,15 +1,15 @@
 /* Sidebar */
 .sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+    height: 100%;
     position: fixed;
     top: var(--topbar-height);
     left: 0;
-    height: calc(100vh - var(--topbar-height));
-    width: var(--sidebar-width);
-    background-color: var(--card-background);
-    border-right: 1px solid var(--border-color);
-    transition: width var(--transition-normal);
-    overflow-x: hidden;
-    z-index: 1000;
+    z-index: 10;
+    overflow-y: auto;
 }
 
 .sidebar.collapsed {
@@ -21,57 +21,65 @@
     padding: var(--spacing-md) 0;
 }
 
-.sidebar-nav a {
+.sidebar-btn {
     display: flex;
     align-items: center;
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
     color: var(--text-color);
     text-decoration: none;
-    transition: background-color var(--transition-fast);
-    white-space: nowrap;
+    transition: all var(--transition-fast);
+    margin-bottom: var(--spacing-xs);
 }
 
-.sidebar-nav a:hover {
-    background-color: var(--hover-color);
+.sidebar-btn:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--accent-color);
 }
 
-.sidebar-nav a.active {
+.sidebar-btn.active {
     background-color: var(--primary-color);
+    color: var(--text-light);
 }
 
-.sidebar-nav .icon {
-    width: 24px;
+.sidebar-btn .icon {
     margin-right: var(--spacing-md);
-    text-align: center;
+    font-size: 1.2rem;
 }
 
-.sidebar.collapsed .sidebar-nav span {
+/* Collapsed sidebar modifications */
+.sidebar.collapsed .sidebar-btn {
+    padding: var(--spacing-md);
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-btn .icon {
+    margin-right: 0;
+    font-size: 1.5rem;
+}
+
+.sidebar.collapsed .sidebar-btn span {
     display: none;
 }
 
 /* Sidebar Toggle */
 .sidebar-toggle {
     position: fixed;
-    bottom: var(--spacing-lg);
-    left: var(--spacing-lg);
-    z-index: 1001;
+    top: calc(var(--topbar-height) + var(--spacing-md));
+    left: var(--spacing-md);
+    z-index: 100;
     background-color: var(--primary-color);
-    color: var(--text-color);
+    color: var(--text-light);
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: var(--border-radius);
+    font-size: 1.2rem;
+    padding: 0.5rem;
     cursor: pointer;
-    box-shadow: 0 2px 5px var(--shadow-color);
-    transition: all var(--transition-fast);
+    opacity: 0.8;
+    transition: opacity var(--transition-fast);
 }
 
 .sidebar-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px var(--shadow-color);
+    opacity: 1;
 }
 
 /* Responsive Sidebar */

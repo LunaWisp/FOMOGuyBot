@@ -1,0 +1,187 @@
+/* Buttons */
+.primary-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+    font-size: 0.9rem;
+}
+
+.primary-button:hover:not(:disabled) {
+    background-color: var(--hover-color);
+}
+
+.primary-button:disabled {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+}
+
+.secondary-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.9rem;
+}
+
+.secondary-button:hover:not(:disabled) {
+    background-color: var(--hover-color);
+    border-color: var(--primary-color);
+}
+
+.secondary-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Inputs */
+.input-field {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--purple-glow);
+}
+
+/* Notifications */
+.notification {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
+    animation: notificationFadeIn var(--transition-normal);
+}
+
+.notification.success {
+    background-color: var(--success-color);
+    color: var(--background-color);
+}
+
+.notification.error {
+    background-color: var(--error-color);
+    color: var(--background-color);
+}
+
+.notification.info {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.notification.warning {
+    background-color: var(--warning-color);
+    color: var(--background-color);
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: var(--spacing-xs);
+}
+
+.status-connected {
+    background-color: var(--success-color);
+}
+
+.status-disconnected {
+    background-color: var(--error-color);
+}
+
+.status-paused {
+    background-color: var(--warning-color);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--card-background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--hover-color);
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.section-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Search */
+.search-container {
+    position: relative;
+    margin-bottom: var(--spacing-md);
+}
+
+.search-container input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.5rem;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    color: var(--text-color);
+}
+
+/* View Options */
+.view-options {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.view-option {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.view-option.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-color);
+} 

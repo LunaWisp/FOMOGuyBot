@@ -13,7 +13,7 @@ const colors = {
 };
 
 // Logger functions
-const logger = {
+export const logger = {
   /**
    * Logs an informational message in cyan
    * @param {string} msg - The message to log
@@ -31,6 +31,12 @@ const logger = {
    * @param {string} msg - The message to log
    */
   warning: (msg) => console.log(`${colors.yellow}${msg}${colors.reset}`),
+  
+  /**
+   * Alias for warning - logs a warning message in yellow
+   * @param {string} msg - The message to log
+   */
+  warn: (msg) => console.log(`${colors.yellow}${msg}${colors.reset}`),
   
   /**
    * Logs an error message in red
@@ -52,6 +58,4 @@ const logger = {
     console.log(`${colors.cyan}${title}${colors.reset}`);
     console.log('==========================================');
   }
-};
-
-module.exports = logger; 
+}; 

@@ -2,8 +2,9 @@
  * Token Service
  * Handles token-related operations
  */
-const { apiService } = require('../../../services/api.js');
-const { showError, showNotification } = require('../utils/uiUtils.js');
+import { apiService } from '../../../services/api.js';
+import { showError, showNotification } from '../utils/uiUtils.js';
+import { debugTool } from '../../../utils/debug/index.js';
 
 export class TokenService {
     constructor() {

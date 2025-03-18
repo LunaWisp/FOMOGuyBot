@@ -1,0 +1,104 @@
+/* Token Tracker Header */
+.token-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--card-background);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.page-title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.page-title .token-count {
+    background: var(--primary-color);
+    color: var(--text-color);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Page Controls */
+.page-controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.view-toggle {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-md);
+    padding: 4px;
+}
+
+.view-toggle button {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--text-color);
+    opacity: 0.7;
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+}
+
+.view-toggle button.active {
+    background: var(--primary-color);
+    opacity: 1;
+}
+
+/* Sort Controls */
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--border-radius-md);
+}
+
+.sort-label {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.875rem;
+}
+
+.sort-options {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.sort-option {
+    padding: 4px 12px;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.sort-option:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sort-option.active {
+    background: var(--primary-color);
+    opacity: 1;
+} 

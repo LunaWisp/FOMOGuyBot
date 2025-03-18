@@ -3,8 +3,8 @@
  * Manages token input and search functionality
  */
 
-const { debugTool } = require('../../../utils/debug/index.js');
-const { filterTokens, showNotification } = require('../utils/index.js');
+import { debugTool } from '../../../utils/debug/index.js';
+import { filterTokens, showNotification } from '../utils/index.js';
 
 /**
  * Set up the token input and search button handlers
@@ -65,110 +65,70 @@ export function setupTokenInputHandlers() {
     // Direct connection to token tracker bot
     const self = this;
     searchBtn.addEventListener('click', async function(event) {
-        event.preventDefault(); // Prevent form submission if in a form
-        debugTool.logInfo('Search button clicked - connecting to token tracker bot');
+        event.preventDefault();
         const searchText = tokenInput.value.trim();
+        const tokenFeedback = document.getElementById('token-input-feedback');
         
-        if (searchText.length < 2) {
+        if (!searchText) {
             if (tokenFeedback) {
-                tokenFeedback.textContent = 'Enter at least 2 characters';
+                tokenFeedback.textContent = 'Please enter a token address';
                 tokenFeedback.className = 'input-feedback error';
             }
             return;
         }
         
-        try {
-            // Visual feedback during search
-            searchBtn.disabled = true;
-            searchBtn.textContent = 'Searching...';
-            if (tokenFeedback) {
-                tokenFeedback.textContent = 'Connecting to token tracker...';
-                tokenFeedback.className = 'input-feedback';
-            }
+        // Check if input looks like a token address
+        if (searchText.length === 44 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(searchText)) {
+            debugTool.logInfo('Detected token address format, fetching token data from bot');
             
-            // Check if input looks like a token address
-            if (searchText.length >= 32 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(searchText)) {
-                debugTool.logInfo('Detected token address format, fetching token data from bot');
-                
-                try {
-                    // Connect to token tracker bot to add token
-                    const newToken = await self.tokenService.addToken(searchText);
-                    debugTool.logInfo('Token data retrieved from bot:', newToken);
-                    
-                    // Update UI with new token
-                    self.updateTokensUI();
-                    
-                    // Add notification for the user
-                    self.addAlert({
-                        type: 'success',
-                        tokenId: newToken.id,
-                        message: `Started tracking ${newToken.symbol}`
-                    });
-                    
-                    // Clear input on success
-                    tokenInput.value = '';
-                    if (tokenFeedback) {
-                        tokenFeedback.textContent = `Token ${newToken.symbol} added successfully!`;
-                        tokenFeedback.className = 'input-feedback valid';
-                    }
-                    
-                    // Highlight the newly added token
-                    setTimeout(() => {
-                        const tokenElement = document.querySelector(`[data-token-id="${newToken.id}"]`);
-                        if (tokenElement) {
-                            tokenElement.classList.add('highlight');
-                            setTimeout(() => tokenElement.classList.remove('highlight'), 2000);
-                        }
-                    }, 100);
-                } catch (error) {
-                    debugTool.logError(`Error connecting to token tracker bot: ${error.message}`);
-                    if (tokenFeedback) {
-                        tokenFeedback.textContent = error.message || 'Failed to connect to token tracker';
-                        tokenFeedback.className = 'input-feedback error';
-                    }
+            try {
+                // Show loading state
+                if (tokenFeedback) {
+                    tokenFeedback.textContent = 'Adding token...';
+                    tokenFeedback.className = 'input-feedback loading';
                 }
-            } else {
-                // Use as search term to find tokens
-                debugTool.logInfo('Using as search term for token metadata');
                 
-                // Update search term and refresh token display
-                self.searchTerm = searchText;
+                // Connect to token tracker bot to add token
+                const newToken = await self.tokenService.addToken(searchText);
+                debugTool.logInfo('Token data retrieved from bot:', newToken);
+                
+                // Update UI with new token
                 self.updateTokensUI();
                 
-                // Get matched tokens for user feedback
-                const filteredTokens = filterTokens(
-                    self.tokenService.tokens,
-                    searchText,
-                    self.tokenFilter
-                );
+                // Add notification for the user
+                self.addAlert({
+                    type: 'success',
+                    tokenId: newToken.id,
+                    message: `Started tracking ${newToken.symbol}`
+                });
                 
-                // Show feedback about search results
+                // Clear input on success
+                tokenInput.value = '';
                 if (tokenFeedback) {
-                    if (filteredTokens.length > 0) {
-                        tokenFeedback.textContent = `Found ${filteredTokens.length} matching token(s)`;
-                        tokenFeedback.className = 'input-feedback valid';
-                    } else {
-                        tokenFeedback.textContent = 'No matching tokens found';
-                        tokenFeedback.className = 'input-feedback';
-                    }
+                    tokenFeedback.textContent = `Token ${newToken.symbol} added successfully!`;
+                    tokenFeedback.className = 'input-feedback valid';
                 }
                 
-                // Show notification about search results
-                showNotification(
-                    `Found ${filteredTokens.length} token(s) matching "${searchText}"`, 
-                    filteredTokens.length > 0 ? 'success' : 'info'
-                );
+                // Highlight the newly added token
+                setTimeout(() => {
+                    const tokenElement = document.querySelector(`[data-token-id="${newToken.id}"]`);
+                    if (tokenElement) {
+                        tokenElement.classList.add('highlight');
+                        setTimeout(() => tokenElement.classList.remove('highlight'), 2000);
+                    }
+                }, 100);
+            } catch (error) {
+                console.error('Error adding token:', error);
+                if (tokenFeedback) {
+                    tokenFeedback.textContent = error.message || 'Failed to add token';
+                    tokenFeedback.className = 'input-feedback error';
+                }
             }
-        } catch (error) {
-            debugTool.logError(`Error in token search: ${error.message}`);
+        } else {
             if (tokenFeedback) {
-                tokenFeedback.textContent = error.message || 'Search failed';
+                tokenFeedback.textContent = 'Please enter a valid Solana token address';
                 tokenFeedback.className = 'input-feedback error';
             }
-        } finally {
-            // Reset button state
-            searchBtn.disabled = false;
-            searchBtn.textContent = 'Search';
         }
     });
     

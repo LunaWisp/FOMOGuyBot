@@ -1,0 +1,63 @@
+/* Token Actions */
+.token-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+.token-actions button {
+    padding: 8px 16px;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.view-analytics-btn {
+    background: var(--primary-color);
+    color: var(--text-color);
+}
+
+.view-analytics-btn:hover {
+    background: var(--secondary-color);
+    color: var(--background-color);
+    transform: translateY(-2px);
+}
+
+.remove-token {
+    background: rgba(255, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.remove-token:hover {
+    background: var(--error-color);
+    color: var(--text-color);
+    transform: translateY(-2px);
+}
+
+/* Token Item Actions */
+.token-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-sm);
+    transition: transform var(--transition-fast);
+}
+
+.token-item:hover {
+    transform: translateX(5px);
+}
+
+.token-info {
+    display: flex;
+    flex-direction: column;
+} 

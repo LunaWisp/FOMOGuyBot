@@ -29,6 +29,14 @@ export class BasePage {
         debugTool.logInfo(`Initializing page: ${this.pageId}`);
         
         try {
+            // Ensure the page container is found
+            if (!this.container) {
+                this.container = document.getElementById(this.pageId);
+                if (!this.container) {
+                    throw new Error(`Container not found for page: ${this.pageId}`);
+                }
+            }
+            
             // Show the page container
             this.showPage();
             
@@ -68,15 +76,11 @@ export class BasePage {
      * Show the page container and hide other pages
      */
     showPage() {
-        // Hide all page containers
-        const pageContainers = document.querySelectorAll('.page-container');
-        pageContainers.forEach(container => {
-            container.classList.remove('active');
-        });
-        
-        // Show this page container
+        // This function is now mainly handled by the router
+        // But we'll ensure our container is visible
         if (this.container) {
-            this.container.classList.add('active');
+            this.container.classList.remove('hidden');
+            debugTool.logInfo(`Made ${this.pageId} visible`);
         } else {
             debugTool.logError(`Page container not found: ${this.pageId}`);
         }

@@ -13,10 +13,10 @@ let debugTools;
 try {
   if (isNode) {
     // Node.js environment
-    const debugToolModule = require('./debugTool.js');
+    const debugToolModule = await import('./debugTool.js');
     debugTool = debugToolModule.default || debugToolModule;
     
-    const debugToolsModule = require('./debugTools.js');
+    const debugToolsModule = await import('./debugTools.js');
     debugTools = debugToolsModule.default || debugToolsModule;
   } else {
     // Browser environment
@@ -34,9 +34,5 @@ try {
   };
 }
 
-// Export for CommonJS
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { debugTool, debugTools };
-}
-
 // Export for ES modules
+export { debugTool, debugTools };

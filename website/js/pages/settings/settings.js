@@ -1,296 +1,184 @@
 /**
  * Settings Page Module
- * Handles user settings and configuration
+ * Main entry point for the Settings functionality
  */
 
-const { BasePage } = require('../common/index.js');
-const { userService, configService } = require('../../services/index.js');
-const { debugTool } = require('../../utils/debug/index.js');
+// Import dependencies, using try-catch for browser compatibility
+let debugTool;
 
-export class SettingsPage extends BasePage {
+try {
+    debugTool = require('../../utils/debug/index.js').debugTool;
+} catch (error) {
+    console.error('Failed to load debugTool:', error);
+    debugTool = console;
+    debugTool.logInfo = debugTool.logInfo || function(msg) { console.log('[INFO]', msg); };
+}
+
+class SettingsPage {
     constructor() {
-        super('settings');
+        this.pageId = 'settings';
+        this.container = document.getElementById(this.pageId);
+        console.log('SettingsPage constructor called');
         
-        this.settings = null;
-        this.formDirty = false;
+        // Settings state
+        this.settings = {
+            updateInterval: 30,
+            priceAlerts: true,
+            volumeAlerts: true,
+            theme: 'light'
+        };
     }
     
     /**
-     * Load settings data from the server
+     * Initialize the settings page
      */
-    async loadData() {
+    initialize() {
+        debugTool.logInfo('Initializing SettingsPage');
+        console.log('SettingsPage initialize called');
+        
+        // Get container reference
+        if (!this.container) {
+            this.container = document.getElementById(this.pageId);
+        }
+        
+        // Make sure the container is visible
+        if (this.container) {
+            this.container.classList.remove('hidden');
+            console.log('Made the settings section visible');
+        } else {
+            console.error('Settings container not found in DOM');
+        }
+        
+        // Load saved settings
+        this.loadSettings();
+        
+        // Set up event listeners
+        this.setupEventListeners();
+    }
+    
+    /**
+     * Load saved settings from localStorage
+     */
+    loadSettings() {
         try {
-            debugTool.logInfo('Loading settings data');
-            
-            // Fetch user settings
-            this.settings = await userService.getUserSettings();
-            
-            // Fetch available configuration options
-            this.configOptions = await configService.getConfigOptions();
-            
-            if (this.settings && this.configOptions) {
-                this.render();
-                this.fillForm();
+            const savedSettings = localStorage.getItem('fomobot_settings');
+            if (savedSettings) {
+                this.settings = JSON.parse(savedSettings);
+                console.log('Loaded settings from localStorage');
             }
+            
+            // Update UI with loaded settings
+            this.updateSettingsUI();
         } catch (error) {
-            debugTool.logError('Failed to load settings:', error);
-            this.showMessage('Failed to load settings. Please try again later.', 'error');
+            console.error('Error loading settings:', error);
         }
     }
     
     /**
-     * Set up event listeners for the settings page
+     * Update the settings UI with current values
+     */
+    updateSettingsUI() {
+        const updateIntervalInput = document.getElementById('update-interval');
+        const priceAlertsCheckbox = document.getElementById('price-alerts');
+        const volumeAlertsCheckbox = document.getElementById('volume-alerts');
+        
+        if (updateIntervalInput) {
+            updateIntervalInput.value = this.settings.updateInterval;
+        }
+        
+        if (priceAlertsCheckbox) {
+            priceAlertsCheckbox.checked = this.settings.priceAlerts;
+        }
+        
+        if (volumeAlertsCheckbox) {
+            volumeAlertsCheckbox.checked = this.settings.volumeAlerts;
+        }
+        
+        console.log('Updated settings UI');
+    }
+    
+    /**
+     * Set up event listeners for settings form
      */
     setupEventListeners() {
-        const form = this.container.querySelector('#settings-form');
-        const saveButton = this.container.querySelector('#save-settings');
-        const resetButton = this.container.querySelector('#reset-settings');
-        
-        if (!form || !saveButton || !resetButton) {
-            debugTool.logError('Settings form elements not found');
-            return;
-        }
-        
-        // Handle form changes
-        Array.from(form.elements).forEach(element => {
-            if (element.tagName === 'BUTTON') return;
-            
-            element.addEventListener('change', () => {
-                this.formDirty = true;
-                this.updateSaveButtonState();
-            });
-            
-            element.addEventListener('input', () => {
-                this.formDirty = true;
-                this.updateSaveButtonState();
-            });
-        });
-        
-        // Handle save button click
-        saveButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await this.saveSettings();
-        });
-        
-        // Handle reset button click
-        resetButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.resetForm();
-        });
-        
-        debugTool.logInfo('Settings event listeners set up');
-    }
-    
-    /**
-     * Update save button state based on form state
-     */
-    updateSaveButtonState() {
-        const saveButton = this.container.querySelector('#save-settings');
-        
+        // Save settings button
+        const saveButton = this.container.querySelector('.primary-button');
         if (saveButton) {
-            saveButton.disabled = !this.formDirty;
-        }
-    }
-    
-    /**
-     * Fill form with current settings
-     */
-    fillForm() {
-        if (!this.settings) return;
-        
-        const form = this.container.querySelector('#settings-form');
-        
-        if (!form) {
-            debugTool.logError('Settings form not found');
-            return;
+            saveButton.addEventListener('click', this.saveSettings.bind(this));
         }
         
-        // Update each form field
-        Object.entries(this.settings).forEach(([key, value]) => {
-            const field = form.elements[key];
-            
-            if (field) {
-                if (field.type === 'checkbox') {
-                    field.checked = value;
-                } else {
-                    field.value = value;
-                }
-            }
-        });
-        
-        this.formDirty = false;
-        this.updateSaveButtonState();
-    }
-    
-    /**
-     * Reset form to current settings
-     */
-    resetForm() {
-        this.fillForm();
-        this.showMessage('Settings reset to saved values.', 'info');
-    }
-    
-    /**
-     * Get form data as object
-     * @returns {Object} Form data
-     */
-    getFormData() {
-        const form = this.container.querySelector('#settings-form');
-        
-        if (!form) {
-            debugTool.logError('Settings form not found');
-            return null;
+        // Reset defaults button
+        const resetButton = this.container.querySelector('.secondary-button');
+        if (resetButton) {
+            resetButton.addEventListener('click', this.resetSettings.bind(this));
         }
         
-        const formData = {};
-        
-        Array.from(form.elements).forEach(element => {
-            if (element.name && element.name !== '') {
-                if (element.type === 'checkbox') {
-                    formData[element.name] = element.checked;
-                } else if (element.type === 'number') {
-                    formData[element.name] = parseFloat(element.value);
-                } else {
-                    formData[element.name] = element.value;
-                }
-            }
-        });
-        
-        return formData;
+        console.log('Set up settings event listeners');
     }
     
     /**
-     * Save settings to server
+     * Save settings to localStorage
      */
-    async saveSettings() {
+    saveSettings() {
+        const updateIntervalInput = document.getElementById('update-interval');
+        const priceAlertsCheckbox = document.getElementById('price-alerts');
+        const volumeAlertsCheckbox = document.getElementById('volume-alerts');
+        
+        // Update settings object
+        if (updateIntervalInput) {
+            this.settings.updateInterval = parseInt(updateIntervalInput.value, 10);
+        }
+        
+        if (priceAlertsCheckbox) {
+            this.settings.priceAlerts = priceAlertsCheckbox.checked;
+        }
+        
+        if (volumeAlertsCheckbox) {
+            this.settings.volumeAlerts = volumeAlertsCheckbox.checked;
+        }
+        
+        // Save to localStorage
         try {
-            const formData = this.getFormData();
+            localStorage.setItem('fomobot_settings', JSON.stringify(this.settings));
+            console.log('Settings saved successfully');
             
-            if (!formData) {
-                throw new Error('Could not get form data');
-            }
-            
-            this.setFormLoading(true);
-            
-            debugTool.logInfo('Saving settings', formData);
-            
-            // Validate settings
-            const validationResult = await userService.validateSettings(formData);
-            
-            if (!validationResult.valid) {
-                this.showMessage(validationResult.error || 'Invalid settings', 'error');
-                this.setFormLoading(false);
-                return;
-            }
-            
-            // Save settings
-            const result = await userService.saveSettings(formData);
-            
-            if (result.success) {
-                this.settings = formData;
-                this.formDirty = false;
-                this.updateSaveButtonState();
-                this.showMessage('Settings saved successfully.', 'success');
-            } else {
-                throw new Error(result.error || 'Failed to save settings');
-            }
+            // Show success notification
+            alert('Settings saved successfully');
         } catch (error) {
-            debugTool.logError('Failed to save settings:', error);
-            this.showMessage('Failed to save settings. Please try again.', 'error');
-        } finally {
-            this.setFormLoading(false);
+            console.error('Error saving settings:', error);
+            alert('Error saving settings');
         }
     }
     
     /**
-     * Set loading state on form
-     * @param {boolean} isLoading - Whether form is loading
+     * Reset settings to defaults
      */
-    setFormLoading(isLoading) {
-        const form = this.container.querySelector('#settings-form');
-        const saveButton = this.container.querySelector('#save-settings');
-        const resetButton = this.container.querySelector('#reset-settings');
-        const loadingIndicator = this.container.querySelector('.loading-indicator');
+    resetSettings() {
+        // Default settings
+        this.settings = {
+            updateInterval: 30,
+            priceAlerts: true,
+            volumeAlerts: true,
+            theme: 'light'
+        };
         
-        if (!form || !saveButton || !resetButton) {
-            return;
-        }
+        // Update UI
+        this.updateSettingsUI();
         
-        if (isLoading) {
-            // Disable form
-            Array.from(form.elements).forEach(element => {
-                element.disabled = true;
-            });
-            
-            // Show loading indicator
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'block';
-            }
-        } else {
-            // Enable form
-            Array.from(form.elements).forEach(element => {
-                if (element.id !== 'save-settings' || this.formDirty) {
-                    element.disabled = false;
-                }
-            });
-            
-            // Hide loading indicator
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'none';
-            }
-        }
+        // Save to localStorage
+        localStorage.setItem('fomobot_settings', JSON.stringify(this.settings));
+        console.log('Settings reset to defaults');
+        
+        // Show notification
+        alert('Settings reset to defaults');
     }
     
     /**
-     * Show a message to the user
-     * @param {string} message - Message text
-     * @param {string} type - Message type (info, success, error)
-     */
-    showMessage(message, type = 'info') {
-        const messageEl = this.container.querySelector('.settings-message');
-        
-        if (!messageEl) {
-            debugTool.logWarning('Message element not found');
-            return;
-        }
-        
-        // Set message type class
-        messageEl.className = 'settings-message';
-        messageEl.classList.add(`message-${type}`);
-        
-        // Set message text
-        messageEl.textContent = message;
-        
-        // Show message
-        messageEl.style.display = 'block';
-        
-        // Hide after 5 seconds
-        setTimeout(() => {
-            messageEl.style.display = 'none';
-        }, 5000);
-    }
-    
-    /**
-     * Render the settings page
-     */
-    render() {
-        debugTool.logInfo('Rendering settings page');
-        
-        // No specific rendering needed, as template is in HTML
-        // Just update save button state
-        this.updateSaveButtonState();
-    }
-    
-    /**
-     * Clean up event listeners and resources
+     * Clean up resources when leaving the page
      */
     cleanup() {
-        super.cleanup();
-        
-        // Reset state
-        this.formDirty = false;
-        
-        debugTool.logInfo('Settings page cleaned up');
+        debugTool.logInfo('Cleaning up SettingsPage');
+        // Any cleanup needed
     }
 }
 
@@ -298,15 +186,23 @@ export class SettingsPage extends BasePage {
  * Load the settings page
  * @returns {SettingsPage} The settings page instance
  */
-export function loadSettings() {
+function loadSettings() {
     console.log('Loading settings page');
     try {
         const settingsPage = new SettingsPage();
         settingsPage.initialize();
-        settingsPage.loadData();
         return settingsPage;
     } catch (error) {
         console.error('Error loading settings page:', error);
         throw error;
     }
+}
+
+// Export for both ES modules and CommonJS
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { SettingsPage, loadSettings };
+} else {
+    // Browser environment
+    window.SettingsPage = SettingsPage;
+    window.loadSettings = loadSettings;
 } 

@@ -317,27 +317,16 @@
           debugTools.console.log('Token Tracker Button Clicked', { token: tokenValue });
           
           try {
-            // Simulate API call or replace with actual implementation
+            // Use real blockchain data from DexScreener
             const url = `/api/token/${tokenValue}`;
             debugTools.console.log('Fetching token data', { url });
             
-            // Here you would use the actual API endpoint
-            // const data = await debugTools.api.retryFetch(url);
-            
-            // For simulation purposes:
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const mockData = {
-              symbol: tokenValue,
-              price: '$' + (Math.random() * 1000).toFixed(2),
-              change: (Math.random() * 10 - 5).toFixed(2) + '%',
-              volume: '$' + (Math.random() * 1000000).toFixed(2)
-            };
-            
-            debugTools.console.log('Token Data Retrieved', mockData);
+            const data = await debugTools.api.retryFetch(url);
+            debugTools.console.log('Token Data Retrieved', data);
             debugTools.tokenTracker.failureCount = 0; // Reset on success
             
-            // Add token to UI
-            addTokenToUI(mockData);
+            // Log the token data
+            debugTools.console.log('Token data received', data);
             
             // Update status back to normal
             if (botStatus) {
@@ -388,43 +377,8 @@
       emptyState.remove();
     }
     
-    // Create token element
-    const tokenElement = document.createElement('div');
-    tokenElement.className = 'token-card pulse-animation';
-    
-    // Determine if change is positive or negative
-    const changeClass = tokenData.change.startsWith('-') ? 'negative' : 'positive';
-    
-    tokenElement.innerHTML = `
-      <div class="token-header">
-        <div class="token-symbol">${tokenData.symbol}</div>
-        <button class="remove-token">×</button>
-      </div>
-      <div class="token-name">Token</div>
-      <div class="token-details">
-        <div class="token-price">${tokenData.price}</div>
-        <div class="token-change ${changeClass}">${tokenData.change}</div>
-      </div>
-    `;
-    
-    // Add remove functionality
-    const removeBtn = tokenElement.querySelector('.remove-token');
-    if (removeBtn) {
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tokenElement.remove();
-        debugTools.console.log('Token removed', { symbol: tokenData.symbol });
-        
-        // If no tokens left, show empty state
-        if (tokenList.children.length === 0) {
-          tokenList.innerHTML = '<div class="empty-state">No tokens added yet. Add a token to start tracking.</div>';
-        }
-      });
-    }
-    
-    // Add to list
-    tokenList.appendChild(tokenElement);
-    debugTools.console.log('Token added to UI', tokenData);
+    // Log the token data
+    debugTools.console.log('Token data received', tokenData);
   }
 
   // Initialize after DOM is loaded
@@ -471,3 +425,48 @@
     initializeTools();
   }
 })(); 
+
+// Track sidebar button clicks and fix navigation
+window.addEventListener('DOMContentLoaded', function() {
+    // Ensure our navigation fix runs after everything else
+    setTimeout(function() {
+        const sidebarButtons = document.querySelectorAll('.sidebar-btn');
+        console.log(`Found ${sidebarButtons.length} sidebar buttons to track`);
+        
+        sidebarButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                const pageId = this.dataset.page;
+                
+                // Force the content to be visible with a slight delay to let other handlers run
+                setTimeout(function() {
+                    const targetSection = document.getElementById(pageId);
+                    if (targetSection) {
+                        // Hide all sections
+                        const allSections = document.querySelectorAll('.content-section');
+                        allSections.forEach(section => {
+                            section.classList.add('hidden');
+                            console.log(`Force hiding section: ${section.id}`);
+                        });
+                        
+                        // Show target section
+                        targetSection.classList.remove('hidden');
+                        console.log(`Force showing section: ${pageId}`);
+                        
+                        // Update active sidebar button
+                        sidebarButtons.forEach(btn => {
+                            if (btn.dataset.page === pageId) {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        });
+                    } else {
+                        console.error(`Force navigation failed - section not found: ${pageId}`);
+                    }
+                }, 100);
+            });
+        });
+        
+        console.log('Sidebar button tracking enabled with navigation fixes');
+    }, 500);
+}); 

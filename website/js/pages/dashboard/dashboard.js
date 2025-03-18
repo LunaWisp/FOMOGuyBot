@@ -1,162 +1,143 @@
 /**
  * Dashboard Page Module
+ * Main entry point for the Dashboard functionality
  */
-const { BasePage } = require('../common/index.js');
-const { apiService } = require('../../services/index.js');
-const { debugTool } = require('../../utils/debug/index.js');
 
-export class DashboardPage extends BasePage {
+// Import dependencies, using try-catch for browser compatibility
+let debugTool;
+
+try {
+    debugTool = require('../../utils/debug/index.js').debugTool;
+} catch (error) {
+    console.error('Failed to load debugTool:', error);
+    debugTool = console;
+    debugTool.logInfo = debugTool.logInfo || function(msg) { console.log('[INFO]', msg); };
+}
+
+class DashboardPage {
     constructor() {
-        super('dashboard');
-        
-        this.stats = {
-            totalTokens: 0,
-            activeAlerts: 0,
-            volume24h: 0,
-            profitLoss: 0
-        };
+        this.pageId = 'dashboard';
+        this.container = document.getElementById(this.pageId);
         this.botStatus = 'stopped';
-        this.eventHandlers = new Map();
+        console.log('DashboardPage constructor called');
     }
-
+    
     /**
-     * Load initial dashboard data
+     * Initialize the dashboard page
      */
-    async loadData() {
-        try {
-            debugTool.logInfo("Loading dashboard data");
-            const dashboardData = await apiService.getDashboardStats();
-            
-            if (dashboardData) {
-                this.stats = { ...this.stats, ...dashboardData };
-                this.botStatus = dashboardData.botStatus || 'stopped';
-            }
-            
-            this.render();
-        } catch (error) {
-            debugTool.logError('Failed to load dashboard data:', error);
+    initialize() {
+        debugTool.logInfo('Initializing DashboardPage');
+        console.log('DashboardPage initialize called');
+        
+        // Get container reference
+        if (!this.container) {
+            this.container = document.getElementById(this.pageId);
         }
+        
+        // Make sure the container is visible
+        if (this.container) {
+            this.container.classList.remove('hidden');
+            console.log('Made the dashboard section visible');
+        } else {
+            console.error('Dashboard container not found in DOM');
+        }
+        
+        // Set up quick actions
+        this.setupQuickActions();
+        
+        // Update stats
+        this.updateStats();
     }
-
+    
     /**
-     * Set up event listeners
+     * Update dashboard stats
      */
-    setupEventListeners() {
-        // Quick actions
+    updateStats() {
+        // In a real implementation, these would be fetched from an API
+        // For now, let's use some dummy data
+        const stats = {
+            totalTokens: 5,
+            activeAlerts: 2,
+            dailyVolume: '$12,450',
+            profitLoss: '+2.5%'
+        };
+        
+        // Update the stat cards
+        const statCards = this.container.querySelectorAll('.stats-card p');
+        if (statCards.length >= 4) {
+            statCards[0].textContent = stats.totalTokens;
+            statCards[1].textContent = stats.activeAlerts;
+            statCards[2].textContent = stats.dailyVolume;
+            statCards[3].textContent = stats.profitLoss;
+        }
+        
+        console.log('Updated dashboard stats');
+    }
+    
+    /**
+     * Set up event listeners for quick actions
+     */
+    setupQuickActions() {
         const quickActions = this.container.querySelectorAll('.quick-action');
         
-        quickActions.forEach(button => {
-            const action = button.textContent.trim().toLowerCase();
+        if (quickActions.length >= 3) {
+            // Start/Stop Bot button
+            quickActions[0].addEventListener('click', this.toggleBotStatus.bind(this));
             
-            // Store reference to bound handler for cleanup
-            const handler = this.handleQuickAction.bind(this, action);
-            this.eventHandlers.set(button, handler);
+            // Add Token button
+            quickActions[1].addEventListener('click', () => {
+                window.location.hash = 'tokenTracker';
+            });
             
-            button.addEventListener('click', handler);
-        });
-        
-        debugTool.logInfo("Dashboard event listeners set up");
-    }
-
-    /**
-     * Handle quick action button clicks
-     * @param {string} action - The action to perform
-     */
-    handleQuickAction(action, event) {
-        debugTool.logInfo(`Quick action clicked: ${action}`);
-        
-        switch (action) {
-            case 'start bot':
-                this.startBot();
-                break;
-            case 'add token':
-                // Navigate to token tracker page
-                window.location.hash = 'token-tracker';
-                break;
-            case 'view analytics':
-                // Navigate to analytics page
+            // View Analytics button
+            quickActions[2].addEventListener('click', () => {
                 window.location.hash = 'analytics';
-                break;
-            default:
-                debugTool.logWarning(`Unknown quick action: ${action}`);
+            });
         }
-    }
-
-    /**
-     * Start the bot
-     */
-    async startBot() {
-        try {
-            debugTool.logInfo("Starting bot");
-            
-            const result = await apiService.startBot();
-            
-            if (result.success) {
-                this.botStatus = 'running';
-                this.updateBotStatusUI();
-                debugTool.logInfo("Bot started successfully");
-            } else {
-                throw new Error(result.error || 'Failed to start bot');
-            }
-        } catch (error) {
-            debugTool.logError('Failed to start bot:', error);
-        }
-    }
-
-    /**
-     * Render the dashboard
-     */
-    render() {
-        this.updateStatsUI();
-        this.updateBotStatusUI();
-        debugTool.logInfo("Dashboard rendered");
-    }
-
-    /**
-     * Update the stats UI
-     */
-    updateStatsUI() {
-        // Update stats cards
-        const statsElements = this.container.querySelectorAll('.stats-card p');
         
-        if (statsElements.length >= 4) {
-            statsElements[0].textContent = this.stats.totalTokens;
-            statsElements[1].textContent = this.stats.activeAlerts;
-            statsElements[2].textContent = `$${this.stats.volume24h.toLocaleString()}`;
-            statsElements[3].textContent = `${this.stats.profitLoss}%`;
-        }
+        console.log('Set up dashboard quick actions');
     }
-
+    
     /**
-     * Update the bot status UI
+     * Toggle bot status between running and stopped
      */
-    updateBotStatusUI() {
+    toggleBotStatus() {
         const botStatusElement = this.container.querySelector('.bot-status');
-        const startBotButton = this.container.querySelector('.quick-action:first-child');
+        const startBotButton = this.container.querySelector('.quick-action');
         
-        if (botStatusElement) {
-            botStatusElement.className = `bot-status ${this.botStatus}`;
-            botStatusElement.textContent = `Bot is currently ${this.botStatus}`;
-        }
-        
-        if (startBotButton) {
-            startBotButton.textContent = this.botStatus === 'running' ? 'Stop Bot' : 'Start Bot';
+        if (botStatusElement && startBotButton) {
+            if (this.botStatus === 'stopped') {
+                this.botStatus = 'running';
+                botStatusElement.className = 'bot-status running';
+                botStatusElement.textContent = 'Bot is currently running';
+                startBotButton.textContent = 'Stop Bot';
+                
+                // Dispatch event for other components to react to status change
+                window.dispatchEvent(new CustomEvent('bot-status-changed', { 
+                    detail: { status: 'running' } 
+                }));
+            } else {
+                this.botStatus = 'stopped';
+                botStatusElement.className = 'bot-status stopped';
+                botStatusElement.textContent = 'Bot is currently stopped';
+                startBotButton.textContent = 'Start Bot';
+                
+                // Dispatch event for other components to react to status change
+                window.dispatchEvent(new CustomEvent('bot-status-changed', { 
+                    detail: { status: 'stopped' } 
+                }));
+            }
+            
+            console.log(`Bot status toggled to: ${this.botStatus}`);
         }
     }
-
+    
     /**
-     * Clean up event listeners and subscriptions
+     * Clean up resources when leaving the page
      */
     cleanup() {
-        super.cleanup();
-        
-        // Remove event listeners
-        this.eventHandlers.forEach((handler, element) => {
-            element.removeEventListener('click', handler);
-        });
-        this.eventHandlers.clear();
-        
-        debugTool.logInfo("Dashboard cleaned up");
+        debugTool.logInfo('Cleaning up DashboardPage');
+        // Any cleanup needed
     }
 }
 
@@ -164,15 +145,17 @@ export class DashboardPage extends BasePage {
  * Load the dashboard page
  * @returns {DashboardPage} The dashboard page instance
  */
-export function loadDashboard() {
+function loadDashboard() {
     console.log('Loading dashboard page');
     try {
         const dashboardPage = new DashboardPage();
         dashboardPage.initialize();
-        dashboardPage.loadData();
         return dashboardPage;
     } catch (error) {
         console.error('Error loading dashboard page:', error);
         throw error;
     }
-} 
+}
+
+// Export for ES modules
+export { DashboardPage, loadDashboard }; 

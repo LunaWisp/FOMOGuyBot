@@ -1,18 +1,27 @@
-/* Stats Section */
+/* Dashboard Styles */
+.dashboard-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
 .stats-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
+    gap: 15px;
     grid-column: span 2;
 }
 
 .stats-card {
     background-color: var(--card-background);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-lg);
+    border-radius: 8px;
+    padding: 20px;
     text-align: center;
     box-shadow: 0 2px 5px var(--shadow-color);
-    transition: transform var(--transition-fast);
+    transition: transform 0.2s ease;
 }
 
 .stats-card:hover {
@@ -20,7 +29,7 @@
 }
 
 .stats-card h3 {
-    margin: 0 0 var(--spacing-sm) 0;
+    margin: 0 0 10px 0;
     font-size: 1.1em;
     color: var(--secondary-color);
 }
@@ -31,19 +40,18 @@
     font-weight: bold;
 }
 
-/* Bot Status Section */
 .bot-status-section {
     grid-column: span 2;
     background-color: var(--card-background);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-lg);
+    border-radius: 8px;
+    padding: 20px;
     box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .bot-status {
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius-sm);
-    margin-bottom: var(--spacing-md);
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
 }
 
 .bot-status.running {
@@ -56,21 +64,20 @@
     color: var(--background-color);
 }
 
-/* Quick Actions */
 .quick-actions {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: 10px;
     flex-wrap: wrap;
 }
 
 .quick-action {
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: 10px 20px;
     border: none;
-    border-radius: var(--border-radius-sm);
+    border-radius: 4px;
     background-color: var(--primary-color);
     color: var(--text-color);
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: background-color 0.2s ease;
 }
 
 .quick-action:hover:not(:disabled) {
@@ -82,23 +89,24 @@
     cursor: not-allowed;
 }
 
-/* Top Performers Section */
-.top-performers-section {
+.top-performers-section,
+.activity-section {
     background-color: var(--card-background);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-lg);
-    box-shadow: 0 2px 5px var(--shadow-color);
+    border-radius: 8px;
+    padding: 20px;
 }
 
-.performer-item {
+.performer-item,
+.activity-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md);
+    padding: 10px;
     border-bottom: 1px solid var(--border-color);
 }
 
-.performer-item:last-child {
+.performer-item:last-child,
+.activity-item:last-child {
     border-bottom: none;
 }
 
@@ -130,14 +138,19 @@
     font-size: 0.8em;
 }
 
-/* Responsive Dashboard */
 @media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
     .stats-section {
         grid-template-columns: 1fr;
+        grid-column: span 1;
     }
 
     .bot-status-section {
-        margin-top: var(--spacing-lg);
+        grid-column: span 1;
     }
 
     .quick-actions {

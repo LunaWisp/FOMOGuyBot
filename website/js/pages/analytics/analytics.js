@@ -1,20 +1,54 @@
 /**
  * Analytics Page Module
- * Handles analytics functionality
+ * Main entry point for the Analytics functionality
  */
 
-const { BasePage } = require('../common/index.js');
-const { apiService } = require('../../services/index.js');
-const { createChart, updateChart } = require('../../utils/index.js');
-const { debugTool } = require('../../utils/debug/index.js');
+// Import dependencies, using try-catch for browser compatibility
+let debugTool;
 
-export class AnalyticsPage extends BasePage {
+try {
+    debugTool = require('../../utils/debug/index.js').debugTool;
+} catch (error) {
+    console.error('Failed to load debugTool:', error);
+    debugTool = console;
+    debugTool.logInfo = debugTool.logInfo || function(msg) { console.log('[INFO]', msg); };
+}
+
+class AnalyticsPage {
     constructor() {
-        super('analytics');
+        this.pageId = 'analytics';
+        this.container = document.getElementById(this.pageId);
+        console.log('AnalyticsPage constructor called');
         
         this.charts = new Map();
         this.dataCache = null;
         this.timeframe = '24h';
+        this.priceChart = null;
+        this.volumeChart = null;
+    }
+    
+    /**
+     * Initialize the analytics page
+     */
+    initialize() {
+        debugTool.logInfo('Initializing AnalyticsPage');
+        console.log('AnalyticsPage initialize called');
+        
+        // Get container reference
+        if (!this.container) {
+            this.container = document.getElementById(this.pageId);
+        }
+        
+        // Make sure the container is visible
+        if (this.container) {
+            this.container.classList.remove('hidden');
+            console.log('Made the analytics section visible');
+        } else {
+            console.error('Analytics container not found in DOM');
+        }
+        
+        // Initialize chart data
+        this.setupCharts();
     }
     
     /**
@@ -157,9 +191,29 @@ export class AnalyticsPage extends BasePage {
     }
     
     /**
+     * Set up charts
+     */
+    setupCharts() {
+        debugTool.logInfo('Setting up analytics charts');
+        
+        // Implementation would create and configure charts
+    }
+    
+    /**
+     * Update charts with new data
+     */
+    updateCharts(data) {
+        debugTool.logInfo('Updating analytics charts');
+        
+        // Implementation would update chart data
+    }
+    
+    /**
      * Clean up resources when leaving the page
      */
     cleanup() {
+        debugTool.logInfo('Cleaning up AnalyticsPage');
+        
         // Clean up charts
         this.charts.forEach(chart => {
             if (chart && typeof chart.destroy === 'function') {
@@ -179,15 +233,23 @@ export class AnalyticsPage extends BasePage {
  * Load the analytics page
  * @returns {AnalyticsPage} The analytics page instance
  */
-export function loadAnalytics() {
+function loadAnalytics() {
     console.log('Loading analytics page');
     try {
         const analyticsPage = new AnalyticsPage();
         analyticsPage.initialize();
-        analyticsPage.loadData();
         return analyticsPage;
     } catch (error) {
         console.error('Error loading analytics page:', error);
         throw error;
     }
+}
+
+// Export for both ES modules and CommonJS
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { AnalyticsPage, loadAnalytics };
+} else {
+    // Browser environment
+    window.AnalyticsPage = AnalyticsPage;
+    window.loadAnalytics = loadAnalytics;
 } 

@@ -2,6 +2,7 @@
 class TerminalUI {
     constructor() {
         this.spinner = null;
+        this.isWindows = process.platform === 'win32';
     }
 
     // ANSI color codes
@@ -47,106 +48,151 @@ class TerminalUI {
         console.log(line + '\n');
     }
 
-    // Token information display
-    displayTokenInfo(token) {
-        const price = token.lastPrice ? `$${token.lastPrice.price.toFixed(6)}` : 'N/A';
-        const symbol = token.metadata?.symbol || 'UNKNOWN';
-        const name = token.metadata?.name || token.mintAddress.substring(0, 8) + '...';
-
-        this.box(
-            `Token: ${name}\n` +
-            `Symbol: ${symbol}\n` +
-            `Price: ${price}\n` +
-            `Address: ${token.mintAddress}`,
-            'Token Information'
-        );
+    // Launch banner
+    displayLaunchBanner() {
+        const banner = `
+${this.colors.cyan}╔════════════════════════════════════════════════════════════════╗
+║                     FOMOBot Token Tracker Server                     ║
+║                                                                      ║
+║  Version: 1.0.0                                                      ║
+║  Port: 3001                                                          ║
+║  Environment: ${process.env.NODE_ENV || 'development'}                ║
+║  Platform: ${process.platform}                                        ║
+║                                                                      ║
+╚════════════════════════════════════════════════════════════════════╝${this.colors.reset}
+`;
+        console.log(banner);
     }
 
-    // Price alert display
-    displayPriceAlert(alert) {
-        const arrow = alert.type === 'increase' ? '↑' : '↓';
-        const color = alert.type === 'increase' ? this.colors.green : this.colors.red;
-        
-        this.box(
-            `${color}${arrow}${this.colors.reset} Price Alert\n` +
-            `Token: ${alert.mintAddress}\n` +
-            `Change: ${color}${alert.change}%${this.colors.reset}\n` +
-            `Old Price: $${alert.oldPrice.toFixed(6)}\n` +
-            `New Price: $${alert.newPrice.toFixed(6)}`,
-            'Price Alert'
-        );
+    // Server status
+    displayServerStatus(port) {
+        const status = `
+${this.colors.green}Server Status:
+✓ HTTP Server running on port ${port}
+✓ WebSocket endpoint: ws://localhost:${port}/ws
+✓ Static file serving enabled
+✓ API endpoints ready${this.colors.reset}
+`;
+        this.box(status, 'Server Status');
     }
 
-    // Transaction display
-    displayTransaction(tx) {
-        this.box(
-            `Transaction Type: ${tx.type}\n` +
-            `Amount: ${tx.amount}\n` +
-            `From: ${tx.from}\n` +
-            `To: ${tx.to}`,
-            'New Transaction'
-        );
+    // Ready message
+    displayReadyMessage() {
+        const message = `
+${this.colors.green}Server is ready to:
+✓ Track tokens
+✓ Handle WebSocket connections
+✓ Process API requests
+✓ Serve static files${this.colors.reset}
+`;
+        this.box(message, 'Ready');
     }
 
     // Error display
     displayError(error) {
-        this.box(
-            `${this.colors.red}Error: ${error.message}${this.colors.reset}\n` +
-            `${this.colors.gray}${error.stack || ''}${this.colors.reset}`,
-            'Error Details'
-        );
+        const errorMessage = `
+${this.colors.red}Error Details:
+${error.message}
+${error.stack ? `\nStack Trace:\n${error.stack}` : ''}${this.colors.reset}
+`;
+        this.box(errorMessage, 'Error');
     }
 
-    // Table display for multiple tokens
+    // Token information display
+    displayTokenInfo(token) {
+        // Extract token data from the potentially nested structure
+        const metadata = token.metadata || {};
+        const price = token.lastPrice || token.price || {};
+        
+        // Format the data with fallbacks for missing values
+        const info = `
+${this.colors.cyan}Token Information:
+Symbol: ${metadata.symbol || 'Unknown'}
+Name: ${metadata.name || 'Unknown'}
+Mint Address: ${token.mintAddress || metadata.mint || 'Unknown'}
+Price: $${typeof price.price === 'number' ? price.price.toFixed(6) : 'Unknown'}
+24h Change: ${price.priceChange24h ? price.priceChange24h.toFixed(2) + '%' : '0%'}
+Market Cap: $${price.marketCap ? price.marketCap.toLocaleString() : 'Unknown'}
+Volume 24h: $${price.volume24h ? price.volume24h.toLocaleString() : 'Unknown'}${this.colors.reset}
+`;
+
+        // Add fallback indicator if using fallback data
+        const title = token.isFallback ? 'Token Info (Fallback Data)' : 'Token Info';
+        this.box(info, title);
+    }
+
+    // Price alert display
+    displayPriceAlert(alert) {
+        const alertMessage = `
+${this.colors.yellow}Price Alert:
+Token: ${alert.symbol}
+Current Price: $${alert.currentPrice}
+Target Price: $${alert.targetPrice}
+Change: ${alert.change}%${this.colors.reset}
+`;
+        this.box(alertMessage, 'Price Alert');
+    }
+
+    // Transaction display
+    displayTransaction(tx) {
+        const txInfo = `
+${this.colors.blue}Transaction:
+Type: ${tx.type}
+Amount: ${tx.amount}
+Price: $${tx.price}
+Time: ${new Date(tx.timestamp).toLocaleString()}${this.colors.reset}
+`;
+        this.box(txInfo, 'Transaction');
+    }
+
+    // Token table display
     displayTokenTable(tokens) {
-        const header = [
-            'Name',
-            'Symbol',
-            'Price',
-            'Change'
-        ].join(' | ');
-
-        const separator = '-'.repeat(header.length);
-
-        console.log(`${this.colors.cyan}${header}${this.colors.reset}`);
-        console.log(separator);
-
-        tokens.forEach(token => {
-            const price = token.lastPrice ? `$${token.lastPrice.price.toFixed(6)}` : 'N/A';
-            const symbol = token.metadata?.symbol || 'UNKNOWN';
-            const name = token.metadata?.name || token.mintAddress.substring(0, 8) + '...';
-            const change = token.lastPrice?.change ? 
-                `${token.lastPrice.change > 0 ? '+' : ''}${token.lastPrice.change.toFixed(2)}%` : 
-                'N/A';
-            const changeColor = token.lastPrice?.change > 0 ? this.colors.green : 
-                token.lastPrice?.change < 0 ? this.colors.red : this.colors.white;
-
-            console.log([
-                name.padEnd(20),
-                symbol.padEnd(10),
-                price.padEnd(15),
-                `${changeColor}${change}${this.colors.reset}`
-            ].join(' | '));
-        });
+        if (!tokens || tokens.length === 0) {
+            this.box(`${this.colors.yellow}No tokens being tracked${this.colors.reset}`, 'Token Tracker Status');
+            return;
+        }
+        
+        // Create header row
+        const header = `${this.colors.cyan}Symbol    | Price         | Change 24h | Volume 24h        | Fallback${this.colors.reset}`;
+        
+        // Create table rows
+        const table = tokens.map(token => {
+            const symbol = (token.symbol || 'UNKNOWN').padEnd(8);
+            const price = ('$' + (token.price || 'N/A')).padStart(12);
+            const change = ((token.change24h || '0') + '%').padStart(7);
+            const volume = ('$' + (token.volume24h || 'N/A')).padStart(15);
+            const fallback = token.isFallback ? '    ✓' : '    -';
+            
+            return `${this.colors.white}${symbol} | ${price} | ${change} | ${volume} ${fallback}${this.colors.reset}`;
+        }).join('\n');
+        
+        // Display the table
+        this.box(`${header}\n${table}`, 'Token Tracker Status');
     }
 
-    // Simple loading spinner simulation (no animation)
+    // Spinner methods
     startSpinner(message) {
-        console.log(`${this.colors.cyan}Loading:${this.colors.reset} ${message}...`);
-        this.spinner = { message };
+        if (this.spinner) return;
+        this.spinner = setInterval(() => {
+            process.stdout.write(`\r${this.colors.blue}⠋${this.colors.reset} ${message}`);
+        }, 100);
     }
 
     stopSpinner(success = true, message = '') {
         if (this.spinner) {
-            const result = message || this.spinner.message;
-            if (success) {
-                this.success(result);
-            } else {
-                this.error(result);
-            }
+            clearInterval(this.spinner);
             this.spinner = null;
+            process.stdout.write('\r');
+            if (message) {
+                if (success) {
+                    this.success(message);
+                } else {
+                    this.error(message);
+                }
+            }
         }
     }
 }
 
-module.exports = new TerminalUI(); 
+// Create and export singleton instance
+export const terminalUI = new TerminalUI(); 

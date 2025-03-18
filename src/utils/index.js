@@ -3,11 +3,11 @@
  * Exports all utility modules for easier imports
  */
 
-const logger = require('./logger');
-const portUtils = require('./portUtils');
-const serverUtils = require('./serverUtils');
+import { logger } from './logger.js';
+import { portUtils } from './portUtils.js';
+import { serverUtils } from './serverUtils.js';
 
-module.exports = {
+export {
   logger,
   portUtils,
   serverUtils

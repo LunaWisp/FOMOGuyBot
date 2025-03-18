@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FOMOBot - Solana Token Tracker</title>
     <link rel="stylesheet" href="css/main.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Debug Tools (load in the correct order) -->
-    <script src="js/utils/debug/debugTool.js"></script>
-    <script src="js/utils/debug/debugTools.js"></script>
+    <script type="module" src="js/utils/debug/debugTool.js"></script>
+    <script type="module" src="js/utils/debug/debugTools.js"></script>
+    
+    <!-- Direct Navigation Fix -->
+    <script type="module" src="js/directNav.js"></script>
     
     <!-- Main Application -->
-    <script type="module" src="./js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
     <!-- Top Bar -->
     <div class="topbar">
         <div class="logo">FOMO<span>Bot</span></div>
-        <div id="bot-status" class="status-disconnected">Bot Status: Disconnected</div>
         <div class="user-menu">👤</div>
     </div>
 
@@ -81,8 +84,8 @@
                     </div>
                 </section>
 
-                <section id="token-tracker" class="content-section hidden">
-                    <div class="section-header">
+                <section id="tokenTracker" class="content-section">
+                    <div class="tokentracker-container">
                         <h2>Token Tracker</h2>
                         <div class="section-actions">
                             <div class="search-container">
@@ -94,9 +97,7 @@
                                 <button class="view-option" data-view="list">List</button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="token-tracker-grid">
+                        
                         <div class="token-section">
                             <div class="section-title">
                                 <h3>Tracked Tokens</h3>
@@ -111,47 +112,26 @@
                             
                             <div class="add-token">
                                 <input type="text" id="token-input" placeholder="Enter token name, symbol or address">
-                                <button id="add-token-btn" class="primary-button">Search</button>
+                                <button id="add-token-btn" class="primary-button">Add Token</button>
                             </div>
                             
                             <div id="token-input-feedback" class="input-feedback"></div>
+                            
+                            <!-- Manual token tracking for testing -->
+                            <div class="token-test-panel">
+                                <div class="test-controls">
+                                    <input type="text" id="test-token-address" 
+                                           placeholder="Test Token Address" 
+                                           value="EdevXsYfsBhQY3BSs1RD6R6izKjHBhj7EBN7446apump">
+                                    <button id="test-track-token" class="test-button">Direct Track</button>
+                                </div>
+                                <div class="test-message">Force track a token by address directly from the API</div>
+                            </div>
                             
                             <div id="tracked-tokens" class="token-list card-view">
                                 <!-- Tokens will be added here dynamically -->
                                 <div class="empty-state" id="empty-tokens">
                                     <p>No tokens added yet. Add a token to start tracking.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="alerts-section">
-                            <div class="section-title">
-                                <h3>Recent Alerts</h3>
-                                <button id="clear-alerts" class="text-button">Clear All</button>
-                            </div>
-                            <div id="token-alerts" class="alerts-list">
-                                <!-- Alerts will be added here dynamically -->
-                                <div class="empty-state" id="empty-alerts">
-                                    <p>No alerts yet. They will appear here when triggered.</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="transactions-section">
-                            <div class="section-title">
-                                <h3>Recent Transactions</h3>
-                                <div class="section-controls">
-                                    <select id="transaction-filter">
-                                        <option value="all">All Types</option>
-                                        <option value="buy">Buy</option>
-                                        <option value="sell">Sell</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="token-transactions" class="transactions-list">
-                                <!-- Transactions will be added here dynamically -->
-                                <div class="empty-state" id="empty-transactions">
-                                    <p>No transactions yet. They will appear here when detected.</p>
                                 </div>
                             </div>
                         </div>
@@ -205,4 +185,147 @@
         </main>
     </div>
 </body>
+<script>
+    // IMMEDIATE NAVIGATION FIX - Runs before any other script
+    console.log('IMMEDIATE NAVIGATION FIX: Script started');
+    
+    // Function to handle page navigation
+    function fixNavigation() {
+        // Function to show a specific page
+        function showPage(pageId) {
+            console.log('IMMEDIATE NAVIGATION FIX: Showing page', pageId);
+            
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show the target section
+            const targetSection = document.getElementById(pageId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                
+                // Update active sidebar button
+                const buttons = document.querySelectorAll('.sidebar-btn');
+                buttons.forEach(btn => {
+                    if (btn.dataset.page === pageId) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        // Set up click handlers for all sidebar buttons
+        const buttons = document.querySelectorAll('.sidebar-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const pageId = this.dataset.page;
+                console.log('IMMEDIATE NAVIGATION FIX: Clicked button for page', pageId);
+                showPage(pageId);
+            });
+        });
+        
+        // Handle initial page based on hash
+        function handleInitialPage() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                showPage(hash);
+            } else {
+                showPage('dashboard');
+            }
+        }
+        
+        // Handle hash changes
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                showPage(hash);
+            }
+        });
+        
+        // Set an interval to keep checking if the sections exist
+        // This helps if the DOM isn't fully loaded yet
+        const checkInterval = setInterval(function() {
+            const sections = document.querySelectorAll('.content-section');
+            if (sections.length > 0) {
+                console.log('IMMEDIATE NAVIGATION FIX: Found sections, initializing navigation');
+                handleInitialPage();
+                clearInterval(checkInterval);
+            }
+        }, 100);
+        
+        // Also try to initialize once the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            handleInitialPage();
+        });
+    }
+    
+    // Try to run the fix immediately
+    fixNavigation();
+    
+    // Also run it after a small delay in case DOM isn't ready yet
+    setTimeout(fixNavigation, 500);
+</script>
+
+<script>
+    // Direct fix for navigation issues
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all content sections
+        const sections = document.querySelectorAll('.content-section');
+        
+        // Get all sidebar buttons
+        const buttons = document.querySelectorAll('.sidebar-btn');
+        
+        // Function to show a specific page and hide others
+        function showPage(pageId) {
+            console.log('DIRECT FIX: Showing page', pageId);
+            
+            // Hide all sections
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show the selected section
+            const targetSection = document.getElementById(pageId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            // Update active button
+            buttons.forEach(btn => {
+                if (btn.dataset.page === pageId) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // Add click handlers to all buttons
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                const pageId = this.dataset.page;
+                console.log('DIRECT FIX: Button clicked for page', pageId);
+                showPage(pageId);
+            });
+        });
+        
+        // Handle initial page load
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash)) {
+            showPage(hash);
+        } else {
+            showPage('dashboard');
+        }
+        
+        // Listen for hash changes
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                showPage(hash);
+            }
+        });
+    });
+</script>
 </html> 

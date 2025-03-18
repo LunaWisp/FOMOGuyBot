@@ -1,264 +1,128 @@
 /**
- * Token Card Component
- * Renders token cards and list items
+ * Simple token card component
+ * Creates token cards directly with minimal dependencies
  */
-const { shortenAddress, formatPrice, formatPercentage, getPriceChangeClass, formatNumber } = require('../utils/formatters.js');
 
-/**
- * Creates a token element (card or list item)
- * @param {Object} token - The token data object
- * @param {string} viewMode - The view mode ('card' or 'list')
- * @returns {HTMLElement} The created token element
- */
-export function createTokenElement(token, viewMode) {
-    // Create a token card or list item depending on the current view
-    const element = document.createElement('div');
-    element.id = `token-${token.id}`;
-    element.className = viewMode === 'card' ? 'token-card' : 'token-item';
-    element.setAttribute('data-token-id', token.id);
+async function createTokenElement(token, viewMode = 'card') {
+    console.log('Creating token element for:', token);
     
-    // Determine price change class
-    const changeClass = getPriceChangeClass(token.change24h);
-    const formattedPrice = formatPrice(token.price);
-    const formattedChange = formatPercentage(token.change24h);
-    
-    // Format additional metadata if available
-    const formattedVolume = token.volume24h ? formatNumber(token.volume24h, 2, true) : 'N/A';
-    const formattedMarketCap = token.marketCap ? formatNumber(token.marketCap, 2, true) : 'N/A';
-    
-    // Generate risk indicator if available from bot analysis
-    let riskIndicator = '';
-    if (token.botAnalysis) {
-        const riskScore = token.botAnalysis.riskScore || 0;
-        let riskLevel, riskClass;
-        
-        if (riskScore < 30) {
-            riskLevel = 'Low Risk';
-            riskClass = 'risk-low';
-        } else if (riskScore < 70) {
-            riskLevel = 'Medium Risk';
-            riskClass = 'risk-medium';
-        } else {
-            riskLevel = 'High Risk';
-            riskClass = 'risk-high';
-        }
-        
-        riskIndicator = `<div class="risk-indicator ${riskClass}" title="Bot Analysis: ${riskScore}/100">${riskLevel}</div>`;
+    // Ensure we have a valid token
+    if (!token || (!token.mintAddress && !token.address)) {
+        console.error('Invalid token data:', token);
+        return createErrorCard('Invalid token data');
     }
     
-    // Format last updated time if available
-    const lastUpdated = token.lastUpdated ? new Date(token.lastUpdated).toLocaleTimeString() : '';
-    const updateInfo = lastUpdated ? `<div class="update-time">Updated: ${lastUpdated}</div>` : '';
+    const address = token.mintAddress || token.address;
+    const metadata = token.metadata || {};
+    const price = token.price || token.lastPrice || {};
     
-    // Check if token is being tracked by bot
-    const trackedByBot = token.trackedBy ? `<div class="tracked-by">Tracked by: ${token.trackedBy}</div>` : '';
+    // Create the card element
+    const card = document.createElement('div');
+    card.className = 'token-card';
+    card.dataset.tokenId = address;
     
-    if (viewMode === 'card') {
-        element.innerHTML = `
-            <div class="token-header">
-                <span class="token-symbol">${token.symbol}</span>
-                <span class="token-change ${changeClass}">${formattedChange}</span>
-                ${riskIndicator}
-            </div>
-            <div class="token-name">${token.name}</div>
-            <div class="token-details">
-                <div class="token-price">$${formattedPrice}</div>
-                <div class="token-address" title="${token.address}">${shortenAddress(token.address)}</div>
-            </div>
-            <div class="token-metadata">
-                <div class="metadata-item">
-                    <span class="metadata-label">Volume 24h:</span>
-                    <span class="metadata-value">$${formattedVolume}</span>
-                </div>
-                <div class="metadata-item">
-                    <span class="metadata-label">Market Cap:</span>
-                    <span class="metadata-value">$${formattedMarketCap}</span>
-                </div>
-                ${token.holderCount ? `
-                <div class="metadata-item">
-                    <span class="metadata-label">Holders:</span>
-                    <span class="metadata-value">${formatNumber(token.holderCount)}</span>
-                </div>` : ''}
-            </div>
-            ${updateInfo}
-            ${trackedByBot}
-            <div class="token-actions">
-                <button class="view-analytics-btn" data-token-id="${token.id}">Analytics</button>
-                <button class="remove-token" data-token-id="${token.id}">Remove</button>
-            </div>
-        `;
-    } else {
-        element.innerHTML = `
+    if (token.isFallback) {
+        card.classList.add('fallback-data');
+    }
+    
+    // Build card content
+    card.innerHTML = `
+        <div class="token-header">
             <div class="token-info">
-                <div class="token-symbol">${token.symbol}</div>
-                <div class="token-name">${token.name}</div>
-                ${riskIndicator}
+                <img src="${metadata.image || `https://via.placeholder.com/32?text=${(metadata.symbol || '?').charAt(0)}`}" 
+                     alt="${metadata.symbol || 'Token'}" 
+                     class="token-logo" 
+                     onerror="this.src='https://via.placeholder.com/32?text=${(metadata.symbol || '?').charAt(0)}'; this.onerror=null;">
+                <div class="token-name-symbol">
+                    <h3 class="token-name">${metadata.name || 'Unknown Token'}</h3>
+                    <span class="token-symbol">${metadata.symbol || 'UNKNOWN'}</span>
+                </div>
             </div>
-            <div class="token-price">$${formattedPrice}</div>
-            <div class="token-change ${changeClass}">${formattedChange}</div>
-            <div class="token-volume">$${formattedVolume}</div>
-            <div class="token-actions">
-                <button class="view-analytics-btn" data-token-id="${token.id}">Analytics</button>
-                <button class="remove-token" data-token-id="${token.id}">Remove</button>
+            <div class="token-price">
+                <span class="price-value">$${typeof price.price === 'number' ? price.price.toFixed(6) : '0.000000'}</span>
+                <span class="price-change ${getPriceChangeClass(price.priceChange24h)}">
+                    ${formatPriceChange(price.priceChange24h)}
+                </span>
             </div>
-        `;
+        </div>
+        <div class="token-metadata">
+            <div class="metadata-item">
+                <span class="label">Volume 24h</span>
+                <span class="value">${price.volume24h ? '$' + Number(price.volume24h).toLocaleString() : 'N/A'}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="label">Market Cap</span>
+                <span class="value">${price.marketCap ? '$' + Number(price.marketCap).toLocaleString() : 'N/A'}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="label">Address</span>
+                <span class="value token-address">${shortenAddress(address)}</span>
+            </div>
+        </div>
+        <div class="token-actions">
+            <button class="view-analytics" title="View Analytics">📈</button>
+            <button class="remove-token" title="Remove Token" data-address="${address}">❌</button>
+        </div>
+        ${token.isFallback ? '<div class="fallback-warning">Using fallback data</div>' : ''}
+    `;
+    
+    // Add event listeners
+    const removeButton = card.querySelector('.remove-token');
+    if (removeButton) {
+        removeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const tokenId = e.currentTarget.dataset.address;
+            console.log('Remove button clicked for:', tokenId);
+            
+            // Find the TokenTracker instance
+            const tokenTracker = window.tokenTracker;
+            if (tokenTracker && typeof tokenTracker.removeToken === 'function') {
+                tokenTracker.removeToken(tokenId);
+            } else {
+                // Fallback: just remove the card from DOM
+                const card = document.querySelector(`[data-token-id="${tokenId}"]`);
+                if (card) card.remove();
+            }
+        });
     }
     
-    // Add click handler for the analytics button
-    setTimeout(() => {
-        const analyticsBtn = element.querySelector('.view-analytics-btn');
-        if (analyticsBtn) {
-            analyticsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Show token analytics modal
-                showTokenAnalytics(token);
-            });
-        }
-    }, 0);
-    
-    return element;
+    return card;
 }
 
-/**
- * Shows a modal with detailed token analytics
- * @param {Object} token - The token data
- */
-function showTokenAnalytics(token) {
-    // Create modal container
-    const modalContainer = document.createElement('div');
-    modalContainer.className = 'modal-container';
+function createErrorCard(errorMessage) {
+    const card = document.createElement('div');
+    card.className = 'token-card error';
     
-    // Format data for display
-    const formattedPrice = formatPrice(token.price);
-    const formattedChange = formatPercentage(token.change24h);
-    const changeClass = getPriceChangeClass(token.change24h);
-    const formattedVolume = token.volume24h ? formatNumber(token.volume24h, 2, true) : 'N/A';
-    const formattedMarketCap = token.marketCap ? formatNumber(token.marketCap, 2, true) : 'N/A';
-    
-    // Generate bot analysis section if available
-    let botAnalysisHtml = '';
-    if (token.botAnalysis) {
-        const { riskScore, liquidity, liquidityLocked, ownershipRenounced } = token.botAnalysis;
-        
-        botAnalysisHtml = `
-            <div class="analytics-section">
-                <h3>Bot Analysis</h3>
-                <div class="analytics-grid">
-                    <div class="analytics-item">
-                        <span class="analytics-label">Risk Score:</span>
-                        <span class="analytics-value">${riskScore}/100</span>
-                    </div>
-                    <div class="analytics-item">
-                        <span class="analytics-label">Liquidity:</span>
-                        <span class="analytics-value">$${formatNumber(liquidity, 2, true)}</span>
-                    </div>
-                    <div class="analytics-item">
-                        <span class="analytics-label">Liquidity Locked:</span>
-                        <span class="analytics-value ${liquidityLocked ? 'positive' : 'negative'}">${liquidityLocked ? 'Yes' : 'No'}</span>
-                    </div>
-                    <div class="analytics-item">
-                        <span class="analytics-label">Ownership Renounced:</span>
-                        <span class="analytics-value ${ownershipRenounced ? 'positive' : 'negative'}">${ownershipRenounced ? 'Yes' : 'No'}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Generate social metrics section if available
-    let socialMetricsHtml = '';
-    if (token.twitterFollowers || token.discordMembers) {
-        socialMetricsHtml = `
-            <div class="analytics-section">
-                <h3>Social Metrics</h3>
-                <div class="analytics-grid">
-                    ${token.twitterFollowers ? `
-                    <div class="analytics-item">
-                        <span class="analytics-label">Twitter Followers:</span>
-                        <span class="analytics-value">${formatNumber(token.twitterFollowers)}</span>
-                    </div>` : ''}
-                    ${token.discordMembers ? `
-                    <div class="analytics-item">
-                        <span class="analytics-label">Discord Members:</span>
-                        <span class="analytics-value">${formatNumber(token.discordMembers)}</span>
-                    </div>` : ''}
-                </div>
-            </div>
-        `;
-    }
-    
-    // Create modal content
-    modalContainer.innerHTML = `
-        <div class="modal-content token-analytics-modal">
-            <div class="modal-header">
-                <h2>${token.name} (${token.symbol}) Analytics</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="analytics-overview">
-                    <div class="token-price-large">$${formattedPrice}</div>
-                    <div class="token-change-large ${changeClass}">${formattedChange}</div>
-                </div>
-                
-                <div class="analytics-section">
-                    <h3>Token Information</h3>
-                    <div class="analytics-grid">
-                        <div class="analytics-item">
-                            <span class="analytics-label">Address:</span>
-                            <span class="analytics-value address">${token.address}</span>
-                        </div>
-                        <div class="analytics-item">
-                            <span class="analytics-label">Volume 24h:</span>
-                            <span class="analytics-value">$${formattedVolume}</span>
-                        </div>
-                        <div class="analytics-item">
-                            <span class="analytics-label">Market Cap:</span>
-                            <span class="analytics-value">$${formattedMarketCap}</span>
-                        </div>
-                        ${token.totalSupply ? `
-                        <div class="analytics-item">
-                            <span class="analytics-label">Total Supply:</span>
-                            <span class="analytics-value">${formatNumber(token.totalSupply)}</span>
-                        </div>` : ''}
-                        ${token.holderCount ? `
-                        <div class="analytics-item">
-                            <span class="analytics-label">Holders:</span>
-                            <span class="analytics-value">${formatNumber(token.holderCount)}</span>
-                        </div>` : ''}
-                        ${token.launchDate ? `
-                        <div class="analytics-item">
-                            <span class="analytics-label">Launch Date:</span>
-                            <span class="analytics-value">${new Date(token.launchDate).toLocaleDateString()}</span>
-                        </div>` : ''}
-                    </div>
-                </div>
-                
-                ${botAnalysisHtml}
-                ${socialMetricsHtml}
-                
-                <div class="analytics-footer">
-                    <p>Data provided by FOMOBot Token Tracker</p>
-                    <p class="update-time">Last updated: ${new Date(token.lastUpdated || Date.now()).toLocaleString()}</p>
-                </div>
-            </div>
+    card.innerHTML = `
+        <div class="token-header">
+            <h3>Error Loading Token</h3>
+        </div>
+        <div class="token-error-content">
+            <p>${errorMessage}</p>
         </div>
     `;
     
-    // Add modal to DOM
-    document.body.appendChild(modalContainer);
-    
-    // Add event listener to close button
-    const closeButton = modalContainer.querySelector('.close-modal');
-    closeButton.addEventListener('click', () => {
-        modalContainer.remove();
-    });
-    
-    // Close when clicking outside the modal
-    modalContainer.addEventListener('click', (e) => {
-        if (e.target === modalContainer) {
-            modalContainer.remove();
-        }
-    });
-} 
+    return card;
+}
+
+// Utility functions
+function shortenAddress(address) {
+    if (!address) return 'Unknown';
+    return address.slice(0, 6) + '...' + address.slice(-4);
+}
+
+function formatPriceChange(change) {
+    if (change === undefined || change === null) return '0.00%';
+    const changeNum = Number(change);
+    const sign = changeNum >= 0 ? '+' : '';
+    return `${sign}${changeNum.toFixed(2)}%`;
+}
+
+function getPriceChangeClass(change) {
+    if (!change) return 'neutral';
+    const changeNum = Number(change);
+    return changeNum >= 0 ? 'positive' : 'negative';
+}
+
+// Make the component available
+export { createTokenElement, createErrorCard }; 

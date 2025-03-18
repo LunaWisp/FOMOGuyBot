@@ -1,6 +1,11 @@
 // agentRules.js
-const fs = typeof require !== 'undefined' ? require('fs') : null;
-const logFilePath = 'C:\\Users\\chris\\Desktop\\FOMOBot\\logs\\console.log';
+import { promises as fs } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const logFilePath = join(__dirname, 'logs/console.log');
 
 const agentRules = {
   project: 'Crypto Token Tracker Server',
@@ -13,7 +18,7 @@ const agentRules = {
       'Modularization is mandatory - break code into reusable, separate modules.',
       'Enhance code when possible while updating fixes or resolving errors.',
       'Keep the same website design and color scheme - no unrequested UI changes.',
-      'If something isn\'t broken, don\'t mess with it - avoid unnecessary changes.',
+      'If something is not broken, do not mess with it - avoid unnecessary changes.',
       'Make everything in the future with index.js files for consistency.',
       'Always check for errors and proper pathing in the entire codebase after fixing, building, or upgrading.'
     ],
@@ -31,17 +36,14 @@ const agentRules = {
     ]
   },
 
-  displayRules: function(phase = 'START') {
+  displayRules: async function(phase = 'START') {
     const timestamp = new Date().toISOString();
     
-    // Only log to file, don't display in console
-    if (fs) {
-      try {
-        const logEntry = `[${timestamp}] RULES [${phase}]:\n${this.formatRulesForLog()}\n`;
-        fs.appendFileSync(logFilePath, logEntry, 'utf8');
-      } catch (error) {
-        // Silent fail - don't break startup if logging fails
-      }
+    try {
+      const logEntry = `[${timestamp}] RULES [${phase}]:\n${this.formatRulesForLog()}\n`;
+      await fs.appendFile(logFilePath, logEntry, 'utf8');
+    } catch (error) {
+      // Silent fail - don't break startup if logging fails
     }
   },
 
@@ -60,7 +62,5 @@ const agentRules = {
 // Auto-run START when loaded
 agentRules.displayRules('START');
 
-// Export for Node.js
-if (typeof module !== 'undefined') {
-  module.exports = agentRules;
-}
+// Export the agentRules object
+export { agentRules };

@@ -1,20 +1,76 @@
 /* Import CSS Variables */
-@import 'modules/variables.css';
+@import 'modules/common/variables.css';
 
 /* Import Base Styles */
 @import 'modules/base.css';
 
 /* Import Layout */
-@import 'modules/layout.css';
+@import 'modules/layout/layout.css';
 
 /* Import Components */
-@import 'modules/components/topbar.css';
-@import 'modules/components/sidebar.css';
-@import 'modules/components/dashboard.css';
-@import 'modules/components/tokens.css';
-@import 'modules/components/analytics.css';
-@import 'modules/components/notifications.css';
-@import 'modules/components/transactions.css';
 @import 'modules/components/buttons.css';
 @import 'modules/components/forms.css';
-@import 'modules/components/animations.css'; 
+@import 'modules/components/notifications.css';
+@import 'modules/components/transactions.css';
+@import 'modules/components/analytics.css';
+@import 'modules/components/dashboard.css';
+@import 'modules/components/cards.css';
+@import 'modules/components/alerts.css';
+@import 'modules/components/modals.css';
+@import 'modules/components/tables.css';
+@import 'modules/components/badges.css';
+@import 'modules/components/tooltips.css';
+@import 'modules/components/loading.css';
+
+/* Token Tracker */
+@import 'modules/components/token-tracker/main.css';
+@import 'modules/components/token-tracker/layout.css';
+@import 'modules/components/token-tracker/components/card.css';
+@import 'modules/components/token-tracker/components/header.css';
+@import 'modules/components/token-tracker/components/search.css';
+@import 'modules/components/token-tracker/components/stats.css';
+@import 'modules/components/token-tracker/components/security.css';
+@import 'modules/components/token-tracker/components/analytics-modal.css';
+@import 'modules/components/token-tracker/components/actions.css';
+
+/* Animations */
+@import 'modules/animations/main.css';
+@import 'modules/animations/transitions.css';
+@import 'modules/animations/loading.css';
+
+/* Common */
+@import 'modules/common/colors.css';
+@import 'modules/common/typography.css';
+@import 'modules/common/spacing.css';
+@import 'modules/common/utilities.css';
+
+/* Navigation fixes */
+.content-section {
+    display: block !important;
+}
+
+.content-section.hidden {
+    display: none !important;
+}
+
+/* Ensure active sidebar button is highlighted */
+.sidebar-btn.active {
+    background-color: rgba(100, 100, 255, 0.2) !important;
+    border-left: 4px solid #6464ff !important;
+}
+
+/* Pages */
+@import 'pages/home.css';
+@import 'pages/dashboard.css';
+@import 'pages/token-tracker.css';
+@import 'pages/analytics.css';
+@import 'pages/settings.css';
+
+/* Media Queries */
+@import 'responsive/mobile.css';
+@import 'responsive/tablet.css';
+@import 'responsive/desktop.css';
+
+/* Theme */
+@import 'theme/dark.css';
+@import 'theme/light.css'; 

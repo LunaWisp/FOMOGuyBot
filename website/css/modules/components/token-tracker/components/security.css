@@ -1,0 +1,98 @@
+/* Security Indicators */
+.token-security-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+}
+
+.security-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.security-badge.positive {
+    background: rgba(0, 200, 81, 0.1);
+    color: var(--success-color);
+}
+
+.security-badge.negative {
+    background: rgba(255, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.security-badge.neutral {
+    background: rgba(255, 187, 51, 0.1);
+    color: var(--warning-color);
+}
+
+/* Live Indicator */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(0, 200, 81, 0.1);
+    color: var(--success-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: var(--spacing-sm);
+}
+
+.live-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success-color);
+    animation: pulse 2s infinite;
+}
+
+/* Transaction Activity */
+.tx-activity {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    margin-top: var(--spacing-xs);
+}
+
+.activity-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.activity-indicator.high-activity {
+    background-color: var(--success-color);
+    box-shadow: 0 0 4px var(--success-color);
+}
+
+.activity-indicator.medium-activity {
+    background-color: var(--warning-color);
+}
+
+.activity-indicator.low-activity {
+    background-color: var(--text-color);
+    opacity: 0.5;
+}
+
+.activity-count {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Update Time & Tracked By */
+.update-time, .tracked-by {
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.6;
+    margin-top: var(--spacing-sm);
+} 

@@ -103,7 +103,7 @@
 }
 
 /* Form Animations */
-@keyframes pulse {
+@keyframes glow {
     0% {
         box-shadow: 0 0 0 0 var(--purple-glow);
     }
@@ -113,10 +113,6 @@
     100% {
         box-shadow: 0 0 0 0 var(--purple-glow);
     }
-}
-
-.pulse-animation {
-    animation: pulse 2s infinite;
 }
 
 /* Responsive Forms */
